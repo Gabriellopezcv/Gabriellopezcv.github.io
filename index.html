@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Currículum - Gabriel López</title>
+  <style>
+    body {
+      font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+      background-color: #eef1f5;
+      margin: 0;
+      padding: 20px;
+      color: #333;
+    }
+    .container {
+      max-width: 900px;
+      margin: auto;
+      background: #fff;
+      padding: 40px;
+      border-radius: 10px;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    }
+    .header {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      margin-bottom: 30px;
+    }
+    .foto {
+      width: 120px;
+      height: 150px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+    }
+    .nombre-contacto {
+      flex: 1;
+    }
+    h1 {
+      font-size: 2em;
+      color: #003366;
+      margin: 0;
+      padding-bottom: 8px;
+      border-bottom: 2px solid #003366;
+    }
+    .contacto p {
+      margin: 4px 0;
+      font-size: 1em;
+    }
+    h2 {
+      font-size: 1.5em;
+      color: #003366;
+      border-bottom: 1px solid #ccc;
+      padding-bottom: 5px;
+      margin-top: 30px;
+      margin-bottom: 15px;
+    }
+    .puesto {
+      margin-bottom: 20px;
+    }
+    .puesto strong {
+      color: #003366;
+    }
+    .puesto em {
+      color: #666;
+    }
+    ul {
+      padding-left: 20px;
+    }
+    .multi-col {
+      columns: 2;
+      column-gap: 40px;
+    }
+    .multi-col ul {
+      margin: 0;
+    }
+    @media (max-width: 700px) {
+      .header {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+      .multi-col {
+        columns: 1;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+
+    <div class="header">
+      <div class="foto" style="background-image: url('https://lh3.googleusercontent.com/pw/AP1GczNgn7J1OnwTXrF044vO0F2ZZxAtCGORhg459sot3zwcT_7VJNd1F2QO1ak7g4yktuUi1zjK0WU5ZGKQlsphXQiDrPb1NKblwaIcKcntKvGfT8wW8aIgMq7AsbxAyJYViIBZVKKYWVR-k-0k49ppxBk=w918-h928-s-no-gm?authuser=0');"></div>
+      <!-- Reemplaza el enlace ↑ con el de tu foto, por ejemplo de Google Drive o Fotos -->
+      <div class="nombre-contacto">
+        <h1>Gabriel López</h1>
+        <div class="contacto">
+          <p><strong>Teléfono:</strong> (+34) 614 449 302</p>
+          <p><strong>Email:</strong> contacto@gabriellopez.es</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="seccion">
+      <h2>Experiencia Profesional</h2>
+      <div class="puesto">
+        <strong>Electricista – Eiffage Energía</strong><br/>
+        <em>Octubre 2010 – Febrero 2018</em><br/>
+        Instalación eléctrica integral en centros logísticos y de pública concurrencia.
+      </div>
+
+      <div class="puesto">
+        <strong>Supervisor de Instalaciones Eléctricas – Monturtech</strong><br/>
+        <em>Febrero 2018 – Julio 2021</em><br/>
+        Participación activa en la organización y ejecución de instalaciones para clasificadores logísticos, colaborando con equipos técnicos y apoyando la puesta en marcha.
+      </div>
+
+      <div class="puesto">
+        <strong>Supervisor de Instalaciones Eléctricas – JPD Engineering Ltd</strong><br/>
+        <em>Octubre 2021 – Junio 2022</em><br/>
+        Tareas de supervisión en sistemas automatizados de clasificación. Conocimientos aplicados en redes industriales (Profibus, EtherCAT) y realización de mediciones eléctricas para asegurar la fiabilidad de los sistemas.
+      </div>
+
+      <div class="puesto">
+        <strong>Supervisor de Instalaciones Eléctricas – DPA Netherlands BV</strong><br/>
+        <em>Julio 2022 – Julio 2024</em><br/>
+        Colaboración en tareas de montaje, revisión y puesta en marcha de sistemas automatizados de clasificación. Responsabilidad técnica en mediciones y comprobaciones finales.
+      </div>
+    </div>
+
+    <div class="seccion">
+      <h2>Formación</h2>
+      <ul>
+        <li>FP Grado Medio en Instalaciones Electrotécnicas – U.T.U (2002 – 2004)</li>
+        <li>Certificado de Instalador en Baja Tensión – CIE (Octubre 2021)</li>
+        <li>PRL Electricidad Alta y Baja Tensión (20h) – FREMM (Febrero 2024)</li>
+        <li>PRL Actividades del Metal (60h) – FEMPA (Febrero 2024)</li>
+      </ul>
+    </div>
+
+    <div class="seccion">
+      <h2>Otros Datos</h2>
+      <div class="multi-col">
+        <ul>
+          <li>Carnet de conducir tipo B</li>
+          <li>Vehículo propio</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="seccion">
+      <h2>Aptitudes</h2>
+      <div class="multi-col">
+        <ul>
+          <li>Instalaciones eléctricas en baja tensión</li>
+          <li>Lectura de planos y esquemas de control</li>
+          <li>Manejo de sistemas de automatización industrial</li>
+          <li>Conocimientos en buses de campo (Profibus, EtherCAT)</li>
+          <li>Mediciones eléctricas con instrumentación adecuada</li>
+          <li>Colaboración en la coordinación de equipos</li>
+          <li>Atención al cliente en entorno técnico</li>
+          <li>Gestión de seguridad en obra</li>
+          <li>Proactividad y responsabilidad</li>
+          <li>Disponibilidad para viajar</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="seccion">
+      <h2>Logros</h2>
+      <div class="multi-col">
+        <ul>
+          <li>Más de 10 años de experiencia en electricidad industrial y mantenimiento</li>
+          <li>Participación en proyectos de gran escala como centros logísticos y naves industriales</li>
+          <li>Colaboración activa en medidas de prevención de riesgos laborales</li>
+          <li>Experiencia práctica en sistemas de comunicación industrial</li>
+          <li>Realización de mediciones eléctricas para diagnósticos y mantenimiento preventivo</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="seccion">
+      <h2>Idiomas</h2>
+      <div class="multi-col">
+        <ul>
+          <li>Español: Nativo</li>
+          <li>Inglés: Nivel B1</li>
+        </ul>
+      </div>
+    </div>
+
+  </div>
+</body>
+</html>
