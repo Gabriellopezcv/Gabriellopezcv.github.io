@@ -123,10 +123,8 @@ document.addEventListener("DOMContentLoaded", () => {
       statusEl.className = `status-message ${type}`;
 
       setTimeout(() => {
-          statusEl.style.opacity = 0;
-          statusEl.style.visibility = 'hidden';
           statusEl.className = 'status-message';
-      }, 5000);
+      }, 4500);
     }
   }
 
