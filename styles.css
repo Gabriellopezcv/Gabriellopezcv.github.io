@@ -157,7 +157,10 @@ header {
   position: fixed;
   top: 15px;
   left: 50%;
-  transform: translateX(-50%);
+  
+  /* CAMBIO CLAVE: Usar translate() con dos valores para una transición estable */
+  transform: translate(-50%, 0);
+  
   font-size: 1.8rem;
   letter-spacing: 0.2rem;
   color: rgba(255, 255, 255, 1);
@@ -168,7 +171,7 @@ header {
 
 #site-logo.enlarged {
   top: 50%;
-  transform: translate(-50%, -50%);
+  transform: translate(-50%, -50%); /* Ahora la transición es suave y predecible */
   font-size: clamp(3rem, 12vw, 10rem);
   letter-spacing: clamp(0.2rem, 1vw, 0.8rem);
   color: rgba(255, 255, 255, 0.08);
@@ -255,15 +258,16 @@ footer nav ul { display: flex; flex-wrap: wrap; justify-content: center; gap: 15
   
   .header-content {
     height: 100%;
-    align-items: flex-end; /* Alinear la fila de iconos abajo */
-    padding-bottom: 5px; /* Un poco de espacio desde el borde inferior */
+    align-items: flex-end;
+    padding-bottom: 5px;
   }
   
   #site-logo {
-    top: 10px; /* Posicionar el título en la parte superior */
+    top: 10px; /* Lo subimos un poco para dar más espacio a los iconos */
     font-size: 1.7rem;
     left: 50%;
-    transform: translateX(-50%); /* Forzar el centrado para la animación */
+    /* CAMBIO CLAVE: Usar la función translate completa para asegurar centrado correcto */
+    transform: translate(-50%, 0); 
   }
 
   main {
