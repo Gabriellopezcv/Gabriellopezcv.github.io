@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Estadísticas del Conflicto en Palestina (Oct 2023 - Presente)</title>
     
-    <!-- Bootstrap CSS (para el diseño) -->
+    <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     
     <!-- Estilos personalizados -->
@@ -63,7 +63,6 @@
             <p class="lead">Datos actualizados desde el 7 de Octubre de 2023. La información se obtiene automáticamente del repositorio <a href="https://github.com/TechForPalestine/palestine-datasets" target="_blank" class="source-link">TechForPalestine/palestine-datasets</a>.</p>
         </header>
 
-        <!-- Contenedor para el loader y mensajes de error -->
         <div id="loader" class="text-center">
             <div class="spinner-border text-primary loading-spinner" role="status">
                 <span class="visually-hidden">Cargando datos...</span>
@@ -72,145 +71,122 @@
         </div>
         <div id="error-message" class="alert d-none" role="alert"></div>
 
-        <!-- Sección de Resumen -->
-        <section id="summary-section" class="mb-5 d-none">
-            <h2 class="mb-4">Resumen Total</h2>
-            <div id="summary-cards" class="row">
-                <!-- Tarjetas de estadísticas -->
-                <div class="col-md-6 col-lg-3 mb-4">
-                    <div class="card text-center h-100">
-                        <div class="card-body">
-                            <h5 class="card-title">Total de Víctimas (Gaza + Cisj.)</h5>
-                            <p id="total-martyrs" class="stat-number">0</p>
+        <section id="main-content" class="d-none">
+            <!-- Sección de Resumen -->
+            <section id="summary-section" class="mb-5">
+                <h2 class="mb-4">Resumen Total</h2>
+                <div id="summary-cards" class="row">
+                    <div class="col-md-6 col-lg-3 mb-4">
+                        <div class="card text-center h-100">
+                            <div class="card-body d-flex flex-column justify-content-center">
+                                <h5 class="card-title">Total de Víctimas (Gaza + Cisj.)</h5>
+                                <p id="total-martyrs" class="stat-number mb-0">0</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6 col-lg-3 mb-4">
+                        <div class="card text-center h-100">
+                            <div class="card-body d-flex flex-column justify-content-center">
+                                <h5 class="card-title">Víctimas en Gaza</h5>
+                                <p id="gaza-martyrs" class="stat-number mb-0">0</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6 col-lg-3 mb-4">
+                        <div class="card text-center h-100">
+                            <div class="card-body d-flex flex-column justify-content-center">
+                                <h5 class="card-title">Víctimas en Cisjordania</h5>
+                                <p id="wb-martyrs" class="stat-number mb-0">0</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6 col-lg-3 mb-4">
+                        <div class="card text-center h-100">
+                            <div class="card-body d-flex flex-column justify-content-center">
+                                <h5 class="card-title">Total de Heridos (Gaza)</h5>
+                                <p id="total-injured" class="stat-number mb-0">0</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6 col-lg-3 mb-4">
+                        <div class="card text-center h-100">
+                            <div class="card-body d-flex flex-column justify-content-center">
+                                <h5 class="card-title">Niños/as Asesinados (Gaza)</h5>
+                                <p id="children-martyrs" class="stat-number mb-0">0</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6 col-lg-3 mb-4">
+                        <div class="card text-center h-100">
+                            <div class="card-body d-flex flex-column justify-content-center">
+                                <h5 class="card-title">Mujeres Asesinadas (Gaza)</h5>
+                                <p id="women-martyrs" class="stat-number mb-0">0</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6 col-lg-6 mb-4">
+                        <div class="card text-center h-100">
+                            <div class="card-body d-flex flex-column justify-content-center">
+                                <h5 class="card-title">Última actualización de datos</h5>
+                                <p id="last-update" class="stat-number mb-0" style="font-size: 1.8rem;">--</p>
+                            </div>
                         </div>
                     </div>
                 </div>
-                <div class="col-md-6 col-lg-3 mb-4">
-                    <div class="card text-center h-100">
-                        <div class="card-body">
-                            <h5 class="card-title">Víctimas en Gaza</h5>
-                            <p id="gaza-martyrs" class="stat-number">0</p>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-md-6 col-lg-3 mb-4">
-                    <div class="card text-center h-100">
-                        <div class="card-body">
-                            <h5 class="card-title">Víctimas en Cisjordania</h5>
-                            <p id="wb-martyrs" class="stat-number">0</p>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-md-6 col-lg-3 mb-4">
-                    <div class="card text-center h-100">
-                        <div class="card-body">
-                            <h5 class="card-title">Total de Heridos (Gaza)</h5>
-                            <p id="total-injured" class="stat-number">0</p>
-                        </div>
-                    </div>
-                </div>
-                 <div class="col-md-6 col-lg-3 mb-4">
-                    <div class="card text-center h-100">
-                        <div class="card-body">
-                            <h5 class="card-title">Niños/as Asesinados (Gaza)</h5>
-                            <p id="children-martyrs" class="stat-number">0</p>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-md-6 col-lg-3 mb-4">
-                    <div class="card text-center h-100">
-                        <div class="card-body">
-                            <h5 class="card-title">Mujeres Asesinadas (Gaza)</h5>
-                            <p id="women-martyrs" class="stat-number">0</p>
-                        </div>
-                    </div>
-                </div>
-                 <div class="col-md-6 col-lg-6 mb-4">
-                    <div class="card text-center h-100">
-                        <div class="card-body">
-                            <h5 class="card-title">Última actualización de datos</h5>
-                            <p id="last-update" class="stat-number" style="font-size: 1.8rem;">--</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
+            </section>
 
-        <!-- Sección de Gráficos -->
-        <section id="charts-section" class="mb-5 d-none">
-            <h2 class="mb-4">Visualización de Datos</h2>
-            <div class="row">
-                <div class="col-lg-12 mb-4">
-                    <div class="card">
-                        <div class="card-body">
-                            <canvas id="dailyDeathsChart"></canvas>
-                        </div>
-                    </div>
+            <!-- Sección de Gráficos -->
+            <section id="charts-section" class="mb-5">
+                <h2 class="mb-4">Visualización de Datos</h2>
+                <div class="row">
+                    <div class="col-lg-12 mb-4"><div class="card"><div class="card-body"><canvas id="dailyDeathsChart"></canvas></div></div></div>
+                    <div class="col-lg-12 mb-4"><div class="card"><div class="card-body"><canvas id="cumulativeDeathsChart"></canvas></div></div></div>
                 </div>
-                <div class="col-lg-12 mb-4">
-                    <div class="card">
-                        <div class="card-body">
-                            <canvas id="cumulativeDeathsChart"></canvas>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
+            </section>
 
-        <!-- Sección de Tabla de Datos -->
-        <section id="table-section" class="mb-5 d-none">
-            <h2 class="mb-4">Datos Diarios Detallados (Gaza)</h2>
-            <div class="table-responsive">
-                <table class="table table-striped table-hover">
-                    <thead>
-                        <tr>
-                            <th>Fecha</th>
-                            <th>Nuevas Víctimas</th>
-                            <th>Total Acumulado</th>
-                            <th>Nuevos Heridos</th>
-                            <th>Total Heridos</th>
-                            <th>Nuevos Niños Víctimas</th>
-                            <th>Total Niños Víctimas</th>
-                            <th>Nuevas Mujeres Víctimas</th>
-                            <th>Total Mujeres Víctimas</th>
-                        </tr>
-                    </thead>
-                    <tbody id="gaza-table-body">
-                    </tbody>
-                </table>
-            </div>
+            <!-- Sección de Tabla de Datos -->
+            <section id="table-section" class="mb-5">
+                <h2 class="mb-4">Datos Diarios Detallados (Gaza)</h2>
+                <div class="table-responsive">
+                    <table class="table table-striped table-hover">
+                        <thead>
+                            <tr>
+                                <th>Fecha</th>
+                                <th>Nuevas Víctimas</th>
+                                <th>Total Acumulado</th>
+                                <th>Nuevos Heridos</th>
+                                <th>Total Heridos</th>
+                                <th>Nuevos Niños</th>
+                                <th>Total Niños</th>
+                                <th>Nuevas Mujeres</th>
+                                <th>Total Mujeres</th>
+                            </tr>
+                        </thead>
+                        <tbody id="gaza-table-body"></tbody>
+                    </table>
+                </div>
+            </section>
         </section>
         
         <footer class="text-center mt-5">
-            <p><small>Página creada con fines informativos. Los datos son propiedad de sus respectivos autores en el repositorio de GitHub.</small></p>
+            <p><small>Página creada con fines informativos. Los datos son propiedad de sus autores.</small></p>
         </footer>
     </div>
 
     <!-- Librerías de JavaScript -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 
     <script>
         document.addEventListener('DOMContentLoaded', () => {
-            // URLs de los datos originales en GitHub
-            const gazaRawURL = 'https://raw.githubusercontent.com/TechForPalestine/palestine-datasets/main/data/gaza_daily_martyrs_2023_2024.csv';
-            const westBankRawURL = 'https://raw.githubusercontent.com/TechForPalestine/palestine-datasets/main/data/west_bank_daily_martyrs_2023_2024.csv';
+            // **CAMBIO IMPORTANTE: Usamos jsDelivr, una CDN fiable para GitHub.**
+            const gazaURL = 'https://cdn.jsdelivr.net/gh/TechForPalestine/palestine-datasets@main/data/gaza_daily_martyrs_2023_2024.csv';
+            const westBankURL = 'https://cdn.jsdelivr.net/gh/TechForPalestine/palestine-datasets@main/data/west_bank_daily_martyrs_2023_2024.csv';
 
-            // Usamos un proxy para evitar problemas de CORS al abrir el archivo localmente
-            const proxyURL = 'https://api.allorigins.win/raw?url=';
-            const gazaDailyURL = proxyURL + encodeURIComponent(gazaRawURL);
-            const westBankDailyURL = proxyURL + encodeURIComponent(westBankRawURL);
-            
             async function fetchData() {
                 try {
-                    const [gazaResponse, wbResponse] = await Promise.all([
-                        fetch(gazaDailyURL),
-                        fetch(westBankDailyURL)
-                    ]);
-
-                    if (!gazaResponse.ok || !wbResponse.ok) {
-                        throw new Error(`Error de red al contactar el servidor. Estatus: ${gazaResponse.status}, ${wbResponse.status}`);
-                    }
+                    const [gazaResponse, wbResponse] = await Promise.all([ fetch(gazaURL), fetch(westBankURL) ]);
+                    if (!gazaResponse.ok || !wbResponse.ok) throw new Error(`Error de red. Estatus: ${gazaResponse.status}, ${wbResponse.status}`);
 
                     const gazaText = await gazaResponse.text();
                     const wbText = await wbResponse.text();
@@ -218,41 +194,39 @@
                     const gazaData = Papa.parse(gazaText, { header: true, dynamicTyping: true, skipEmptyLines: true }).data;
                     const wbData = Papa.parse(wbText, { header: true, dynamicTyping: true, skipEmptyLines: true }).data;
                     
-                    const cleanGazaData = gazaData.filter(row => row && row.date && row.cumulative_martyrs != null);
-                    const cleanWbData = wbData.filter(row => row && row.date && row.cumulative_martyrs != null);
+                    const cleanGaza = gazaData.filter(r => r && r.date && r.cumulative_martyrs != null);
+                    const cleanWb = wbData.filter(r => r && r.date && r.cumulative_martyrs != null);
 
-                    if (cleanGazaData.length === 0 || cleanWbData.length === 0) {
-                         throw new Error("No se pudieron procesar los datos. Los archivos podrían estar vacíos o en un formato incorrecto.");
-                    }
+                    if (cleanGaza.length === 0 || cleanWb.length === 0) throw new Error("No se pudieron procesar los datos CSV. El formato podría haber cambiado o estar vacío.");
 
-                    updateSummaryCards(cleanGazaData, cleanWbData);
-                    createCharts(cleanGazaData, cleanWbData);
-                    populateTable(cleanGazaData);
-                    
-                    document.getElementById('loader').classList.add('d-none');
-                    document.getElementById('summary-section').classList.remove('d-none');
-                    document.getElementById('charts-section').classList.remove('d-none');
-                    document.getElementById('table-section').classList.remove('d-none');
+                    displayData(cleanGaza, cleanWb);
 
                 } catch (error) {
                     console.error("Error detallado:", error);
                     const loader = document.getElementById('loader');
                     const errorMessage = document.getElementById('error-message');
                     loader.classList.add('d-none');
-                    errorMessage.textContent = `Error al cargar los datos: ${error.message}. Por favor, recarga la página. Si el problema persiste, el servicio de datos puede estar temporalmente caído.`;
+                    errorMessage.textContent = `Error al cargar los datos: ${error.message}. Por favor, recarga la página. Si el problema persiste, la fuente de datos puede estar temporalmente caída.`;
                     errorMessage.classList.remove('d-none');
                 }
             }
+            
+            function displayData(gazaData, wbData) {
+                updateSummaryCards(gazaData, wbData);
+                createCharts(gazaData, wbData);
+                populateTable(gazaData);
+                
+                document.getElementById('loader').classList.add('d-none');
+                document.getElementById('main-content').classList.remove('d-none');
+            }
 
             function formatNumber(num) {
-                if (num === null || num === undefined) return 'N/A';
-                return num.toLocaleString('es-ES');
+                return (num === null || num === undefined) ? 'N/A' : num.toLocaleString('es-ES');
             }
 
             function updateSummaryCards(gazaData, wbData) {
-                const latestGaza = gazaData[gazaData.length - 1];
-                const latestWb = wbData[wbData.length - 1];
-                
+                const latestGaza = gazaData[gazaData.length - 1] || {};
+                const latestWb = wbData[wbData.length - 1] || {};
                 const gazaMartyrs = latestGaza.cumulative_martyrs || 0;
                 const wbMartyrs = latestWb.cumulative_martyrs || 0;
                 
@@ -262,54 +236,33 @@
                 document.getElementById('total-injured').textContent = formatNumber(latestGaza.cumulative_injured);
                 document.getElementById('children-martyrs').textContent = formatNumber(latestGaza.cumulative_children_martyrs);
                 document.getElementById('women-martyrs').textContent = formatNumber(latestGaza.cumulative_women_martyrs);
-                document.getElementById('last-update').textContent = latestGaza.date;
+                document.getElementById('last-update').textContent = latestGaza.date || 'Desconocida';
             }
             
             function createCharts(gazaData, wbData) {
                 const labels = gazaData.map(row => row.date);
                 const gazaDaily = gazaData.map(row => row.daily_martyrs || 0);
                 const gazaCumulative = gazaData.map(row => row.cumulative_martyrs || 0);
-                
                 const wbDataMap = new Map(wbData.map(row => [row.date, row]));
+                const wbCumulative = labels.map(date => {
+                    let lastVal = 0;
+                    return wbData.find(d => d.date === date)?.cumulative_martyrs || lastVal;
+                });
                 const wbDaily = labels.map(date => wbDataMap.get(date)?.daily_martyrs || 0);
-                const wbCumulative = labels.map(date => wbDataMap.get(date)?.cumulative_martyrs || 0);
 
                 const chartOptions = {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: { labels: { color: '#e0e0e0' } },
-                        title: { display: true, color: '#e0e0e0', font: { size: 18 } }
-                    },
-                    scales: {
-                        x: { ticks: { color: '#e0e0e0' }, grid: { color: '#444' } },
-                        y: { ticks: { color: '#e0e0e0' }, grid: { color: '#444' }, beginAtZero: true }
-                    }
+                    responsive: true, maintainAspectRatio: false,
+                    plugins: { legend: { labels: { color: '#e0e0e0' }}, title: { display: true, color: '#e0e0e0', font: { size: 16 }}},
+                    scales: { x: { ticks: { color: '#e0e0e0' }, grid: { color: '#444' }}, y: { ticks: { color: '#e0e0e0' }, grid: { color: '#444' }, beginAtZero: true }}
                 };
 
-                // Gráfico 1: Víctimas Diarias
-                new Chart(document.getElementById('dailyDeathsChart'), {
-                    type: 'bar',
-                    data: {
-                        labels: labels,
-                        datasets: [
-                            { label: 'Víctimas Diarias en Gaza', data: gazaDaily, backgroundColor: 'rgba(255, 99, 132, 0.7)' },
-                            { label: 'Víctimas Diarias en Cisjordania', data: wbDaily, backgroundColor: 'rgba(54, 162, 235, 0.7)' }
-                        ]
-                    },
-                    options: { ...chartOptions, plugins: { ...chartOptions.plugins, title: { ...chartOptions.plugins.title, text: 'Víctimas Diarias (Gaza y Cisjordania)' }}, scales: { ...chartOptions.scales, x: { ...chartOptions.scales.x, stacked: true }, y: { ...chartOptions.scales.y, stacked: true } } }
+                new Chart('dailyDeathsChart', { type: 'bar',
+                    data: { labels, datasets: [ { label: 'Víctimas Diarias Gaza', data: gazaDaily, backgroundColor: 'rgba(255, 99, 132, 0.7)' }, { label: 'Víctimas Diarias Cisjordania', data: wbDaily, backgroundColor: 'rgba(54, 162, 235, 0.7)' } ]},
+                    options: { ...chartOptions, plugins: { ...chartOptions.plugins, title: { ...chartOptions.plugins.title, text: 'Víctimas Diarias (Gaza y Cisjordania)' }}, scales: { ...chartOptions.scales, x: { stacked: true }, y: { stacked: true } } }
                 });
 
-                // Gráfico 2: Víctimas Acumuladas
-                new Chart(document.getElementById('cumulativeDeathsChart'), {
-                    type: 'line',
-                    data: {
-                        labels: labels,
-                        datasets: [
-                            { label: 'Total Víctimas en Gaza', data: gazaCumulative, borderColor: '#e91e63', backgroundColor: '#e91e6320', fill: true, tension: 0.1 },
-                             { label: 'Total Víctimas en Cisjordania', data: wbCumulative, borderColor: '#2196f3', backgroundColor: '#2196f320', fill: true, tension: 0.1 }
-                        ]
-                    },
+                new Chart('cumulativeDeathsChart', { type: 'line',
+                    data: { labels, datasets: [ { label: 'Total Víctimas Gaza', data: gazaCumulative, borderColor: '#e91e63', backgroundColor: '#e91e6320', fill: true, tension: 0.1 }, { label: 'Total Víctimas Cisjordania', data: wbCumulative, borderColor: '#2196f3', backgroundColor: '#2196f320', fill: true, tension: 0.1 } ]},
                     options: { ...chartOptions, plugins: { ...chartOptions.plugins, title: { ...chartOptions.plugins.title, text: 'Evolución de Víctimas Acumuladas' }}}
                 });
             }
@@ -318,19 +271,13 @@
                 const tableBody = document.getElementById('gaza-table-body');
                 tableBody.innerHTML = '';
                 [...gazaData].reverse().forEach(row => {
-                    tableBody.innerHTML += `
-                        <tr>
-                            <td>${row.date || 'N/A'}</td>
-                            <td>${formatNumber(row.daily_martyrs)}</td>
-                            <td>${formatNumber(row.cumulative_martyrs)}</td>
-                            <td>${formatNumber(row.daily_injured)}</td>
-                            <td>${formatNumber(row.cumulative_injured)}</td>
-                            <td>${formatNumber(row.daily_children_martyrs)}</td>
-                            <td>${formatNumber(row.cumulative_children_martyrs)}</td>
-                            <td>${formatNumber(row.daily_women_martyrs)}</td>
-                            <td>${formatNumber(row.cumulative_women_martyrs)}</td>
-                        </tr>
-                    `;
+                    tableBody.innerHTML += `<tr>
+                        <td>${row.date || 'N/A'}</td>
+                        <td>${formatNumber(row.daily_martyrs)}</td><td>${formatNumber(row.cumulative_martyrs)}</td>
+                        <td>${formatNumber(row.daily_injured)}</td><td>${formatNumber(row.cumulative_injured)}</td>
+                        <td>${formatNumber(row.daily_children_martyrs)}</td><td>${formatNumber(row.cumulative_children_martyrs)}</td>
+                        <td>${formatNumber(row.daily_women_martyrs)}</td><td>${formatNumber(row.cumulative_women_martyrs)}</td>
+                    </tr>`;
                 });
             }
             
