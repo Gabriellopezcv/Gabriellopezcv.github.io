@@ -1,29 +1,52 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <title>Muertes en Gaza Hoy</title>
+    <meta charset="UTF-8" />
+    <title>Datos Diarios y Totales - Palestina</title>
+    <style>
+        body { font-family: Arial, sans-serif; background: #f0f0f0; padding: 20px; }
+        h1 { color: #b22222; }
+        .dato { background: white; padding: 15px; margin: 10px 0; border-radius: 8px; box-shadow: 0 0 6px rgba(0,0,0,0.1); }
+        .titulo { font-weight: bold; font-size: 1.2em; color: #333; }
+        .numero { font-size: 2em; color: #b22222; }
+    </style>
 </head>
 <body>
-  <h2>Muertes en Gaza hoy:</h2>
-  <p><strong id="numero">Cargando...</strong></p>
+    <h1>Datos de Víctimas en Palestina</h1>
+    <div class="dato">
+        <div class="titulo">Víctimas Totales:</div>
+        <div id="total" class="numero">Cargando...</div>
+    </div>
+    <div class="dato">
+        <div class="titulo">Víctimas Diarias (Último Reporte):</div>
+        <div id="diario" class="numero">Cargando...</div>
+    </div>
 
-  <script>
-    fetch('casualties.json')
-      .then(res => res.json())
-      .then(datos => {
-        const hoy = new Date().toISOString().split('T')[0];
-        const hoyData = datos.find(d => d.report_date === hoy);
-        const ultima = datos[datos.length - 1];
-        const muertes = hoyData ? hoyData.killed : ultima.killed;
-        const fecha = hoyData ? hoy : ultima.report_date;
+    <script>
+        async function cargarDatos() {
+            try {
+                // URL del proxy + URL original, sin variables que puedan generar errores
+                const totalResponse = await fetch('https://corsproxy.io/?https://data.techforpalestine.org/api/summary.json');
+                const totalData = await totalResponse.json();
 
-        document.getElementById('numero').textContent = `${muertes} (fecha: ${fecha})`;
-      })
-      .catch(error => {
-        console.error(error);
-        document.getElementById('numero').textContent = 'Error al cargar.';
-      });
-  </script>
+                const diarioResponse = await fetch('https://corsproxy.io/?https://data.techforpalestine.org/api/casualties-daily.json');
+                const diarioData = await diarioResponse.json();
+
+                const totalMuertos = totalData.totalKilled || 'N/A';
+                const ultimoDia = diarioData[diarioData.length - 1];
+                const diariosMuertos = ultimoDia ? ultimoDia.killed : 'N/A';
+
+                document.getElementById('total').textContent = totalMuertos.toLocaleString();
+                document.getElementById('diario').textContent = diariosMuertos.toLocaleString();
+
+            } catch (error) {
+                console.error('Error cargando datos:', error);
+                document.getElementById('total').textContent = 'Error cargando datos';
+                document.getElementById('diario').textContent = 'Error cargando datos';
+            }
+        }
+
+        cargarDatos();
+    </script>
 </body>
 </html>
