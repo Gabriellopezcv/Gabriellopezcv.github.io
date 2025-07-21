@@ -1,151 +1,195 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Estadísticas del Conflicto en Palestina (Oct 2023 - Presente)</title>
-    
-    <!-- Librerías CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-    
-    <!-- Estilos personalizados -->
-    <style>
-        body { background-color: #121212; color: #e0e0e0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; }
-        .card { background-color: #1e1e1e; border: 1px solid #333; }
-        .card-title { color: #bb86fc; }
-        .stat-number { font-size: clamp(1.8rem, 4vw, 2.5rem); font-weight: bold; color: #f8f9fa; }
-        h1, h2 { color: #bb86fc; border-bottom: 2px solid #3700b3; padding-bottom: 10px; }
-        .loading-spinner { width: 3rem; height: 3rem; }
-        .source-link { color: #03dac6; text-decoration: none; }
-        .source-link:hover { color: #ffffff; text-decoration: underline; }
-        #error-message { background-color: #3e1a1a; color: #ffcdd2; border: 1px solid #d32f2f; }
-        canvas { max-height: 400px; width: 100% !important; }
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Currículum - Gabriel López</title>
+  <style>
+    body {
+      font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+      background-color: #eef1f5;
+      margin: 0;
+      padding: 20px;
+      color: #333;
+    }
+    .container {
+      max-width: 900px;
+      margin: auto;
+      background: #fff;
+      padding: 40px;
+      border-radius: 10px;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    }
+    .header {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      margin-bottom: 30px;
+    }
+    .foto {
+      width: 120px;
+      height: 150px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+    }
+    .nombre-contacto {
+      flex: 1;
+    }
+    h1 {
+      font-size: 2em;
+      color: #003366;
+      margin: 0;
+      padding-bottom: 8px;
+      border-bottom: 2px solid #003366;
+    }
+    .contacto p {
+      margin: 4px 0;
+      font-size: 1em;
+    }
+    h2 {
+      font-size: 1.5em;
+      color: #003366;
+      border-bottom: 1px solid #ccc;
+      padding-bottom: 5px;
+      margin-top: 30px;
+      margin-bottom: 15px;
+    }
+    .puesto {
+      margin-bottom: 20px;
+    }
+    .puesto strong {
+      color: #003366;
+    }
+    .puesto em {
+      color: #666;
+    }
+    ul {
+      padding-left: 20px;
+    }
+    .multi-col {
+      columns: 2;
+      column-gap: 40px;
+    }
+    .multi-col ul {
+      margin: 0;
+    }
+    @media (max-width: 700px) {
+      .header {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+      .multi-col {
+        columns: 1;
+      }
+    }
+  </style>
 </head>
 <body>
-    <div class="container my-5">
-        <header class="text-center mb-5">
-            <h1>Estadísticas del Conflicto en Palestina</h1>
-            <p class="lead">Datos del repositorio <a href="https://github.com/TechForPalestine/palestine-datasets" target="_blank" class="source-link">TechForPalestine/palestine-datasets</a>.</p>
-        </header>
+  <div class="container">
 
-        <!-- Loader: Visible al inicio -->
-        <div id="loader" class="text-center py-5">
-            <div class="spinner-border text-primary loading-spinner" role="status"></div>
-            <p class="mt-3">Cargando datos, por favor espera...</p>
+    <div class="header">
+      <div class="foto" style="background-image: url('https://lh3.googleusercontent.com/pw/AP1GczNgn7J1OnwTXrF044vO0F2ZZxAtCGORhg459sot3zwcT_7VJNd1F2QO1ak7g4yktuUi1zjK0WU5ZGKQlsphXQiDrPb1NKblwaIcKcntKvGfT8wW8aIgMq7AsbxAyJYViIBZVKKYWVR-k-0k49ppxBk=w918-h928-s-no-gm?authuser=0');"></div>
+      <!-- Reemplaza el enlace ↑ con el de tu foto, por ejemplo de Google Drive o Fotos -->
+      <div class="nombre-contacto">
+        <h1>Gabriel López</h1>
+        <div class="contacto">
+          <p><strong>Teléfono:</strong> (+34) 614 449 302</p>
+          <p><strong>Email:</strong> contacto@gabriellopez.es</p>
         </div>
-        
-        <!-- Mensaje de error: Oculto por defecto -->
-        <div id="error-message" class="alert d-none" role="alert"></div>
-
-        <!-- CAMBIO IMPORTANTE: La estructura HTML ya existe desde el principio, pero está oculta con la clase "d-none" -->
-        <main id="main-content" class="d-none">
-            <!-- Sección de Resumen -->
-            <section id="summary-section" class="mb-5">
-                <h2 class="mb-4">Resumen Total</h2>
-                <div id="summary-cards" class="row">
-                    <div class="col-md-6 col-lg-3 mb-4"><div class="card text-center h-100"><div class="card-body d-flex flex-column justify-content-center"><h5 class="card-title">Total Víctimas</h5><p id="total-martyrs" class="stat-number mb-0">0</p></div></div></div>
-                    <div class="col-md-6 col-lg-3 mb-4"><div class="card text-center h-100"><div class="card-body d-flex flex-column justify-content-center"><h5 class="card-title">Víctimas Gaza</h5><p id="gaza-martyrs" class="stat-number mb-0">0</p></div></div></div>
-                    <div class="col-md-6 col-lg-3 mb-4"><div class="card text-center h-100"><div class="card-body d-flex flex-column justify-content-center"><h5 class="card-title">Víctimas Cisj.</h5><p id="wb-martyrs" class="stat-number mb-0">0</p></div></div></div>
-                    <div class="col-md-6 col-lg-3 mb-4"><div class="card text-center h-100"><div class="card-body d-flex flex-column justify-content-center"><h5 class="card-title">Heridos Gaza</h5><p id="total-injured" class="stat-number mb-0">0</p></div></div></div>
-                    <div class="col-md-6 col-lg-3 mb-4"><div class="card text-center h-100"><div class="card-body d-flex flex-column justify-content-center"><h5 class="card-title">Niños/as (Gaza)</h5><p id="children-martyrs" class="stat-number mb-0">0</p></div></div></div>
-                    <div class="col-md-6 col-lg-3 mb-4"><div class="card text-center h-100"><div class="card-body d-flex flex-column justify-content-center"><h5 class="card-title">Mujeres (Gaza)</h5><p id="women-martyrs" class="stat-number mb-0">0</p></div></div></div>
-                    <div class="col-md-6 col-lg-6 mb-4"><div class="card text-center h-100"><div class="card-body d-flex flex-column justify-content-center"><h5 class="card-title">Última Actualización</h5><p id="last-update" class="stat-number mb-0" style="font-size: 1.8rem;">--</p></div></div></div>
-                </div>
-            </section>
-
-            <!-- Sección de Gráficos -->
-            <section id="charts-section" class="mb-5">
-                <h2 class="mb-4">Visualización de Datos</h2>
-                <div class="row">
-                    <div class="col-lg-12 mb-4"><div class="card"><div class="card-body"><canvas id="dailyDeathsChart"></canvas></div></div></div>
-                    <div class="col-lg-12 mb-4"><div class="card"><div class="card-body"><canvas id="cumulativeDeathsChart"></canvas></div></div></div>
-                </div>
-            </section>
-
-            <!-- Sección de Tabla -->
-            <section id="table-section" class="mb-5">
-                <h2 class="mb-4">Datos Diarios Detallados (Gaza)</h2>
-                <div class="table-responsive">
-                    <table class="table table-striped table-hover">
-                        <thead>
-                            <tr><th>Fecha</th><th>Nuevas Víctimas</th><th>Total</th><th>Nuevos Heridos</th><th>Total</th><th>Nuevos Niños</th><th>Total</th><th>Nuevas Mujeres</th><th>Total</th></tr>
-                        </thead>
-                        <tbody id="gaza-table-body"></tbody>
-                    </table>
-                </div>
-            </section>
-        </main>
-        
-        <footer class="text-center mt-5"><p><small>Página creada con fines informativos.</small></p></footer>
+      </div>
     </div>
 
-    <!-- Librerías de JavaScript -->
-    <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
-    <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            const gazaURL = 'https://cdn.jsdelivr.net/gh/TechForPalestine/palestine-datasets@main/data/gaza_daily_martyrs_2023_2024.csv';
-            const westBankURL = 'https://cdn.jsdelivr.net/gh/TechForPalestine/palestine-datasets@main/data/west_bank_daily_martyrs_2023_2024.csv';
-            
-            async function fetchData() {
-                try {
-                    const [gazaResponse, wbResponse] = await Promise.all([ fetch(gazaURL), fetch(westBankURL) ]);
-                    if (!gazaResponse.ok || !wbResponse.ok) throw new Error(`Error de red. Estatus: ${gazaResponse.status}, ${wbResponse.status}`);
-                    const gazaText = await gazaResponse.text(); const wbText = await wbResponse.text();
-                    const gazaData = Papa.parse(gazaText, { header: true, dynamicTyping: true, skipEmptyLines: true }).data.filter(r => r && r.date);
-                    const wbData = Papa.parse(wbText, { header: true, dynamicTyping: true, skipEmptyLines: true }).data.filter(r => r && r.date);
-                    if (gazaData.length === 0) throw new Error("Los datos de Gaza no se pudieron procesar o están vacíos.");
-                    
-                    displayData(gazaData, wbData);
-                } catch (error) {
-                    console.error("Error al cargar o procesar datos:", error);
-                    document.getElementById('loader').classList.add('d-none');
-                    const errorDiv = document.getElementById('error-message');
-                    errorDiv.textContent = `Error crítico al cargar los datos: ${error.message}. Por favor, recarga la página.`;
-                    errorDiv.classList.remove('d-none');
-                }
-            }
-            
-            function displayData(gaza, wb) {
-                // Rellenar tarjetas
-                const format = (num) => (num === null || num === undefined) ? 'N/A' : num.toLocaleString('es-ES');
-                const latestGaza = gaza[gaza.length - 1] || {};
-                const latestWb = wb[wb.length - 1] || {};
-                const gazaMartyrs = latestGaza.cumulative_martyrs || 0, wbMartyrs = latestWb.cumulative_martyrs || 0;
-                document.getElementById('total-martyrs').textContent = format(gazaMartyrs + wbMartyrs);
-                document.getElementById('gaza-martyrs').textContent = format(gazaMartyrs); document.getElementById('wb-martyrs').textContent = format(wbMartyrs);
-                document.getElementById('total-injured').textContent = format(latestGaza.cumulative_injured);
-                document.getElementById('children-martyrs').textContent = format(latestGaza.cumulative_children_martyrs);
-                document.getElementById('women-martyrs').textContent = format(latestGaza.cumulative_women_martyrs);
-                document.getElementById('last-update').textContent = latestGaza.date || 'N/A';
-                
-                // Rellenar tabla
-                document.getElementById('gaza-table-body').innerHTML = [...gaza].reverse().map(row => `<tr>${[row.date, row.daily_martyrs, row.cumulative_martyrs, row.daily_injured, row.cumulative_injured, row.daily_children_martyrs, row.cumulative_children_martyrs, row.daily_women_martyrs, row.cumulative_women_martyrs].map(d=>`<td>${format(d)}</td>`).join('')}</tr>`).join('');
-                
-                // Crear gráficos
-                createCharts(gaza, wb);
+    <div class="seccion">
+      <h2>Experiencia Profesional</h2>
+      <div class="puesto">
+        <strong>Electricista – Eiffage Energía</strong><br/>
+        <em>Octubre 2010 – Febrero 2018</em><br/>
+        Instalación eléctrica integral en centros logísticos y de pública concurrencia.
+      </div>
 
-                // **PASO FINAL Y CRÍTICO:** Ocultar el 'loader' y mostrar el contenido principal
-                document.getElementById('loader').classList.add('d-none');
-                document.getElementById('main-content').classList.remove('d-none');
-            }
+      <div class="puesto">
+        <strong>Supervisor de Instalaciones Eléctricas – Monturtech</strong><br/>
+        <em>Febrero 2018 – Julio 2021</em><br/>
+        Participación activa en la organización y ejecución de instalaciones para clasificadores logísticos, colaborando con equipos técnicos y apoyando la puesta en marcha.
+      </div>
 
-            function createCharts(gaza, wb) {
-                const labels = gaza.map(r => r.date);
-                const wbDataMap = new Map(wb.map(r => [r.date, r]));
-                
-                const commonOptions = { responsive: true, maintainAspectRatio: false, plugins: { legend: { labels: { color: '#e0e0e0' }}, title: { display: true, color: '#e0e0e0', font: { size: 16 }}}, scales: { x: { ticks: { color: '#e0e0e0' }, grid: { color: '#444' }}, y: { ticks: { color: '#e0e0e0' }, grid: { color: '#444' }, beginAtZero: true }} };
-                
-                // Gráfico Diario
-                new Chart('dailyDeathsChart',{ type: 'bar', data: { labels, datasets: [ { label: 'Víctimas Diarias Gaza', data: gaza.map(r => r.daily_martyrs), backgroundColor: 'rgba(255, 99, 132, 0.7)'}, { label: 'Víctimas Diarias Cisj.', data: labels.map(date => wbDataMap.get(date)?.daily_martyrs || 0), backgroundColor: 'rgba(54, 162, 235, 0.7)'} ] }, options: { ...commonOptions, plugins: { ...commonOptions.plugins, title: { ...commonOptions.plugins.title, text: 'Víctimas Diarias' }}, scales: { ...commonOptions.scales, x: { ...commonOptions.scales.x, stacked: true }, y: { ...commonOptions.scales.y, stacked: true }} }});
-                
-                // Gráfico Acumulativo
-                new Chart('cumulativeDeathsChart', { type: 'line', data: { labels, datasets: [ { label: 'Total Gaza', data: gaza.map(r => r.cumulative_martyrs), borderColor: '#e91e63', backgroundColor: '#e91e6320', fill: true, tension: 0.1}, { label: 'Total Cisj.', data: labels.map(date => wb.find(d => d.date === date)?.cumulative_martyrs || null), borderColor: '#2196f3', backgroundColor: '#2196f320', fill: true, tension: 0.1} ] }, options: { ...commonOptions, plugins: { ...commonOptions.plugins, title: { ...commonOptions.plugins.title, text: 'Evolución de Víctimas Acumuladas' }}}});
-            }
+      <div class="puesto">
+        <strong>Supervisor de Instalaciones Eléctricas – JPD Engineering Ltd</strong><br/>
+        <em>Octubre 2021 – Junio 2022</em><br/>
+        Tareas de supervisión en sistemas automatizados de clasificación. Conocimientos aplicados en redes industriales (Profibus, EtherCAT) y realización de mediciones eléctricas para asegurar la fiabilidad de los sistemas.
+      </div>
 
-            fetchData();
-        });
-    </script>
+      <div class="puesto">
+        <strong>Supervisor de Instalaciones Eléctricas – DPA Netherlands BV</strong><br/>
+        <em>Julio 2022 – Julio 2024</em><br/>
+        Colaboración en tareas de montaje, revisión y puesta en marcha de sistemas automatizados de clasificación. Responsabilidad técnica en mediciones y comprobaciones finales.
+      </div>
+    </div>
+
+    <div class="seccion">
+      <h2>Formación</h2>
+      <ul>
+        <li>FP Grado Medio en Instalaciones Electrotécnicas – U.T.U (2002 – 2004)</li>
+        <li>Certificado de Instalador en Baja Tensión – CIE (Octubre 2021)</li>
+        <li>PRL Electricidad Alta y Baja Tensión (20h) – FREMM (Febrero 2024)</li>
+        <li>PRL Actividades del Metal (60h) – FEMPA (Febrero 2024)</li>
+      </ul>
+    </div>
+
+    <div class="seccion">
+      <h2>Otros Datos</h2>
+      <div class="multi-col">
+        <ul>
+          <li>Carnet de conducir tipo B</li>
+          <li>Vehículo propio</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="seccion">
+      <h2>Aptitudes</h2>
+      <div class="multi-col">
+        <ul>
+          <li>Instalaciones eléctricas en baja tensión</li>
+          <li>Lectura de planos y esquemas de control</li>
+          <li>Manejo de sistemas de automatización industrial</li>
+          <li>Conocimientos en buses de campo (Profibus, EtherCAT)</li>
+          <li>Mediciones eléctricas con instrumentación adecuada</li>
+          <li>Colaboración en la coordinación de equipos</li>
+          <li>Atención al cliente en entorno técnico</li>
+          <li>Gestión de seguridad en obra</li>
+          <li>Proactividad y responsabilidad</li>
+          <li>Disponibilidad para viajar</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="seccion">
+      <h2>Logros</h2>
+      <div class="multi-col">
+        <ul>
+          <li>Más de 10 años de experiencia en electricidad industrial y mantenimiento</li>
+          <li>Participación en proyectos de gran escala como centros logísticos y naves industriales</li>
+          <li>Colaboración activa en medidas de prevención de riesgos laborales</li>
+          <li>Experiencia práctica en sistemas de comunicación industrial</li>
+          <li>Realización de mediciones eléctricas para diagnósticos y mantenimiento preventivo</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="seccion">
+      <h2>Idiomas</h2>
+      <div class="multi-col">
+        <ul>
+          <li>Español: Nativo</li>
+          <li>Inglés: Nivel B1</li>
+        </ul>
+      </div>
+    </div>
+
+  </div>
 </body>
 </html>
