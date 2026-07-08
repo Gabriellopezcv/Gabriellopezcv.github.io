@@ -1,0 +1,26 @@
+[
+    {
+        "id": 1,
+        "titulo": "Conceptos de Ciberseguridad",
+        "fecha": "2026-07-09",
+        "estado": "🌳 Árbol",
+        "categoria": "/nodos",
+        "contenido": "La seguridad defensiva se centra en la prevención. Herramientas como los SIEM y los firewalls de próxima generación (NGFW) son fundamentales para monitorizar el tráfico anómalo."
+    },
+    {
+        "id": 2,
+        "titulo": "Idea para script en Python",
+        "fecha": "2026-07-08",
+        "estado": "🌱 Semilla",
+        "categoria": "/cache",
+        "contenido": "Crear un bot que analice los logs del sistema y detecte intentos fallidos de inicio de sesión por SSH. Guardar IPs en una lista negra."
+    },
+    {
+        "id": 3,
+        "titulo": "El mito de la privacidad",
+        "fecha": "2026-07-07",
+        "estado": "🌿 Brote",
+        "categoria": "/bitacora",
+        "contenido": "A medida que integramos más IoT en casa, la línea entre lo privado y lo público se desvanece. Los micrófonos de los altavoces inteligentes siempre están escuchando el 'wake word'."
+    }
+]
