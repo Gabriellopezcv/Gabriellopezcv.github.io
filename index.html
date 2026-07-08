@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Memoria Caché | Jardín Digital</title>
+    <title>Memoria Caché | Gabriel López</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap');
 
@@ -16,19 +16,29 @@
         body, html {
             width: 100%;
             height: 100%;
-            background: radial-gradient(circle at center, #0b101e 0%, #020306 100%);
+            /* Quitamos el fondo del body para que no tape las partículas */
+            background-color: #020306; 
             font-family: 'Share Tech Mono', monospace;
             color: #c8e0ff;
             overflow-x: hidden; 
         }
 
+        /* EL FONDO SOLUCIONADO */
         #networkCanvas {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            z-index: -1; 
+            z-index: 0; /* Capa base */
+            /* El gradiente ahora está en el propio canvas */
+            background: radial-gradient(circle at center, #0b101e 0%, #020306 100%);
+        }
+
+        /* Todo el contenido se pone en la capa 10 (por encima del fondo) */
+        nav, header, main {
+            position: relative;
+            z-index: 10; 
         }
 
         nav {
@@ -42,7 +52,6 @@
             border-bottom: 1px solid rgba(0, 243, 255, 0.2);
             position: sticky;
             top: 0;
-            z-index: 10;
         }
 
         .logo {
@@ -50,6 +59,7 @@
             color: #00f3ff;
             text-shadow: 0 0 10px rgba(0, 243, 255, 0.5);
             font-weight: bold;
+            text-transform: uppercase;
         }
 
         .nav-links a {
@@ -65,7 +75,7 @@
 
         header {
             text-align: center;
-            padding: 80px 20px 40px;
+            padding: 60px 20px 20px;
         }
 
         header h1 {
@@ -89,26 +99,30 @@
             transform: translateY(-2px);
         }
 
-        @keyframes blink {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0; }
+        @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
+
+        /* Indicador de carga estilo terminal */
+        #loader {
+            text-align: center;
+            font-size: 1.2rem;
+            color: #00f3ff;
+            margin: 40px 0;
         }
 
         main {
-            padding: 40px;
-            max-width: 1200px;
+            padding: 20px 40px 100px;
+            max-width: 1300px;
             margin: 0 auto;
-            padding-bottom: 100px;
         }
 
         .garden-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
             gap: 25px;
         }
 
         .node-card {
-            background: rgba(11, 16, 30, 0.6);
+            background: rgba(11, 16, 30, 0.7);
             backdrop-filter: blur(12px);
             border: 1px solid rgba(0, 243, 255, 0.15);
             border-radius: 8px;
@@ -116,25 +130,25 @@
             transition: all 0.3s ease;
             position: relative;
             overflow: hidden;
-            cursor: pointer; /* Indica que se puede hacer clic */
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
         }
 
         .node-card:hover {
             transform: translateY(-5px);
             border-color: rgba(0, 243, 255, 0.6);
             box-shadow: 0 10px 20px rgba(0, 243, 255, 0.1);
+            background: rgba(17, 26, 48, 0.85);
         }
 
         .node-card::before {
             content: '';
             position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 3px;
+            top: 0; left: 0; width: 100%; height: 3px;
             background: linear-gradient(90deg, #00f3ff, #8a2be2);
-            opacity: 0;
-            transition: opacity 0.3s ease;
+            opacity: 0; transition: opacity 0.3s ease;
         }
 
         .node-card:hover::before { opacity: 1; }
@@ -149,26 +163,27 @@
             padding-bottom: 10px;
         }
 
+        .node-meta .tech-tag { color: #8a2be2; font-weight: bold; }
+
         .node-title {
-            font-size: 1.2rem;
+            font-size: 1.15rem;
             color: #00f3ff;
             margin-bottom: 15px;
+            line-height: 1.4;
         }
 
         .node-content {
-            font-size: 0.95rem;
+            font-size: 0.9rem;
             line-height: 1.5;
             color: #a0b2c6;
+            flex-grow: 1;
         }
 
-        /* --- ESTILOS DEL MODAL (VENTANA FLOTANTE) --- */
+        /* ESTILOS DEL MODAL (VENTANA FLOTANTE) */
         .modal-overlay {
             position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(2, 3, 6, 0.8);
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(2, 3, 6, 0.85);
             backdrop-filter: blur(8px);
             z-index: 100;
             display: flex;
@@ -189,58 +204,59 @@
             border: 1px solid rgba(0, 243, 255, 0.5);
             border-radius: 8px;
             width: 90%;
-            max-width: 700px;
-            max-height: 80vh;
+            max-width: 800px;
+            max-height: 85vh;
             overflow-y: auto;
             padding: 40px;
             position: relative;
             transform: translateY(20px);
             transition: transform 0.3s ease;
-            box-shadow: 0 0 30px rgba(0, 243, 255, 0.1);
+            box-shadow: 0 0 40px rgba(0, 243, 255, 0.15);
         }
 
-        .modal-overlay.active .modal-content {
-            transform: translateY(0);
-        }
+        .modal-overlay.active .modal-content { transform: translateY(0); }
 
         .close-btn {
             position: absolute;
-            top: 15px;
-            right: 20px;
-            font-size: 2rem;
-            color: #00f3ff;
-            background: none;
-            border: none;
-            cursor: pointer;
-            transition: color 0.3s;
+            top: 15px; right: 20px;
+            font-size: 2rem; color: #00f3ff;
+            background: none; border: none; cursor: pointer; transition: color 0.3s;
         }
+        .close-btn:hover { color: #8a2be2; }
 
-        .close-btn:hover {
-            color: #8a2be2;
-        }
-
-        .modal-title {
-            color: #00f3ff;
-            margin-bottom: 10px;
-            font-size: 1.8rem;
-        }
+        .modal-title { color: #00f3ff; margin-bottom: 10px; font-size: 1.6rem; line-height: 1.3;}
         
         .modal-meta {
-            font-size: 0.85rem;
-            color: #8c9bb0;
-            margin-bottom: 25px;
-            border-bottom: 1px solid rgba(0, 243, 255, 0.2);
-            padding-bottom: 10px;
+            font-size: 0.85rem; color: #8c9bb0; margin-bottom: 25px;
+            border-bottom: 1px solid rgba(0, 243, 255, 0.2); padding-bottom: 10px;
         }
 
         .modal-body {
-            color: #c8e0ff;
-            line-height: 1.8;
-            font-size: 1.05rem;
-            white-space: pre-wrap; /* Respeta los saltos de línea del JSON */
+            color: #c8e0ff; line-height: 1.7; font-size: 1.05rem;
+            margin-bottom: 30px;
         }
 
-        /* Scrollbar personalizado para el modal */
+        /* Botón estilo Cyberpunk para ir a la noticia */
+        .cyber-btn {
+            display: inline-block;
+            background: transparent;
+            color: #00f3ff;
+            border: 1px solid #00f3ff;
+            padding: 10px 20px;
+            text-decoration: none;
+            text-transform: uppercase;
+            font-size: 0.9rem;
+            letter-spacing: 1px;
+            transition: all 0.3s;
+        }
+
+        .cyber-btn:hover {
+            background: #00f3ff;
+            color: #050914;
+            box-shadow: 0 0 15px #00f3ff;
+        }
+
+        /* Scrollbar */
         ::-webkit-scrollbar { width: 8px; }
         ::-webkit-scrollbar-track { background: #050914; }
         ::-webkit-scrollbar-thumb { background: #00f3ff; border-radius: 4px; }
@@ -257,8 +273,8 @@
         <div class="logo">gabriellopez.es</div>
         <div class="nav-links">
             <a href="#">/inicio</a>
-            <a href="#">/nodos</a>
-            <a href="#">/bitacora</a>
+            <a href="#">/data_stream</a>
+            <a href="#">/sistema</a>
         </div>
     </nav>
 
@@ -267,20 +283,20 @@
         <h1>"Tus recuerdos no son tuyos,<br>son solo datos guardados en caché."<span class="cursor"></span></h1>
     </header>
 
-    <!-- Contenedor de Notas -->
+    <!-- Contenedor principal donde se inyectará el RSS -->
     <main>
-        <div class="garden-grid" id="jardinDigital">
-            <!-- Las tarjetas se cargarán aquí -->
-        </div>
+        <div id="loader">Estableciendo conexión satelital con servidor de noticias..._</div>
+        <div class="garden-grid" id="jardinDigital"></div>
     </main>
 
-    <!-- VENTANA EMERGENTE (MODAL) PARA LEER LA NOTA COMPLETA -->
+    <!-- VENTANA EMERGENTE (MODAL) -->
     <div id="noteModal" class="modal-overlay">
         <div class="modal-content">
             <button class="close-btn" id="closeModal">&times;</button>
             <h2 id="modalTitle" class="modal-title"></h2>
             <div class="modal-meta" id="modalMeta"></div>
             <div class="modal-body" id="modalBody"></div>
+            <a href="#" id="modalLink" class="cyber-btn" target="_blank">Leer transmisión original &rarr;</a>
         </div>
     </div>
 
@@ -368,52 +384,65 @@
 
         resize(); animate();
 
-        // --- 2. SISTEMA DE NOTAS Y MODAL ---
+        // --- 2. SISTEMA DE DATOS AUTOGENERADOS (RSS) ---
         const modal = document.getElementById('noteModal');
         const closeModalBtn = document.getElementById('closeModal');
-        window.notasData = []; // Guardaremos las notas aquí globalmente
+        window.articulosData = [];
 
-        // Cerrar modal con botón X
         closeModalBtn.addEventListener('click', () => modal.classList.remove('active'));
-        
-        // Cerrar modal si haces clic fuera de la ventana
-        modal.addEventListener('click', (e) => {
-            if (e.target === modal) modal.classList.remove('active');
-        });
+        modal.addEventListener('click', (e) => { if (e.target === modal) modal.classList.remove('active'); });
 
-        // Función para abrir la nota que se ha clickeado
-        function abrirNota(index) {
-            const nota = window.notasData[index];
-            document.getElementById('modalTitle').innerText = nota.titulo;
-            document.getElementById('modalMeta').innerText = `${nota.categoria} | ${nota.estado} | ${nota.fecha}`;
-            document.getElementById('modalBody').innerText = nota.contenido;
+        function abrirArticulo(index) {
+            const articulo = window.articulosData[index];
+            document.getElementById('modalTitle').innerText = articulo.titulo;
+            document.getElementById('modalMeta').innerText = `[ORIGEN: XATAKA] | ESTADO: VERIFICADO | FECHA: ${articulo.fecha}`;
+            
+            // Usamos innerHTML porque la API de RSS devuelve párrafos en HTML seguro
+            document.getElementById('modalBody').innerHTML = articulo.contenidoCompleto;
+            document.getElementById('modalLink').href = articulo.link;
+            
             modal.classList.add('active');
         }
 
-        async function cargarNotas() {
+        async function cargarRSSAutomático() {
             const grid = document.getElementById('jardinDigital');
+            const loader = document.getElementById('loader');
+            
             try {
-                const respuesta = await fetch('datos.json');
-                if (!respuesta.ok) throw new Error('No se pudo cargar la base de datos');
+                // Usamos la API pública rss2json para leer el feed de Xataka sin problemas de CORS
+                const rssFeedUrl = 'https://www.xataka.com/feed';
+                const apiUrl = `https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(rssFeedUrl)}`;
                 
-                const notas = await respuesta.json();
-                window.notasData = notas; // Guardamos en la variable global para poder abrirlas luego
+                const respuesta = await fetch(apiUrl);
+                const data = await respuesta.json();
 
-                notas.forEach((nota, index) => {
-                    // Cortamos el contenido a 90 caracteres para la vista previa
-                    const resumen = nota.contenido.length > 90 
-                                    ? nota.contenido.substring(0, 90) + "..." 
-                                    : nota.contenido;
+                if (data.status !== 'ok') throw new Error('Error al decodificar el feed');
 
+                loader.style.display = 'none'; // Ocultar el texto de carga
+
+                window.articulosData = data.items.map(item => {
+                    // Quitamos las etiquetas HTML del texto para la vista previa
+                    let textoLimpio = item.description.replace(/(<([^>]+)>)/ig, '');
+                    return {
+                        titulo: item.title,
+                        fecha: item.pubDate.split(' ')[0],
+                        autor: item.author || 'Sistema',
+                        link: item.link,
+                        resumen: textoLimpio.substring(0, 120) + "...",
+                        contenidoCompleto: item.description // Aquí guardamos el HTML completo para el modal
+                    };
+                });
+
+                // Generamos las tarjetas en el HTML
+                window.articulosData.forEach((articulo, index) => {
                     const tarjetaHTML = `
-                        <!-- Aquí pasamos el índice de la nota al hacer clic -->
-                        <article class="node-card" onclick="abrirNota(${index})">
+                        <article class="node-card" onclick="abrirArticulo(${index})">
                             <div class="node-meta">
-                                <span>${nota.categoria}</span>
-                                <span>${nota.estado}</span>
+                                <span class="tech-tag">/data_stream</span>
+                                <span>${articulo.fecha}</span>
                             </div>
-                            <h2 class="node-title">${nota.titulo}</h2>
-                            <p class="node-content">${resumen}</p>
+                            <h2 class="node-title">${articulo.titulo}</h2>
+                            <p class="node-content">${articulo.resumen}</p>
                         </article>
                     `;
                     grid.innerHTML += tarjetaHTML;
@@ -421,11 +450,12 @@
 
             } catch (error) {
                 console.error("Error:", error);
-                grid.innerHTML = `<p style="color: #ff4444; grid-column: 1 / -1; text-align: center;">Error conectando con datos.json.</p>`;
+                loader.innerText = "Error de conexión con el satélite. Datos no encontrados.";
+                loader.style.color = "red";
             }
         }
 
-        cargarNotas();
+        cargarRSSAutomático();
 
     </script>
 </body>
