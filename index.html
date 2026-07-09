@@ -3,58 +3,77 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SISTEMA.CERO | Intercepción</title>
+    <title>SISTEMA.CERO // GABRIEL.LOPEZ</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-    <!-- Escaneo de monitor y viñeta oscura -->
-    <div class="crt-scanlines"></div>
-    <div class="vignette"></div>
+    <!-- Filtros de monitor CRT -->
+    <div class="crt-overlay"></div>
+    <div class="scanlines"></div>
 
-    <!-- Fondo interactivo -->
-    <canvas id="networkCanvas"></canvas>
+    <!-- Motor Gráfico de Fondo -->
+    <canvas id="cyber-canvas"></canvas>
 
-    <header>
-        <h1 id="motto" class="decrypter-text"></h1>
-    </header>
-
-    <main>
-        <div id="terminal-loader">
-            <span id="loader-text">[sys.boot] Escaneando anomalías en el tejido de la realidad...</span>
-            <div class="progress-bar"><div class="progress" id="loading-bar"></div></div>
+    <!-- Pantalla de Arranque (Desaparece al cargar) -->
+    <div id="boot-screen">
+        <div class="boot-text">
+            <p>> INICIANDO SISTEMA.CERO...</p>
+            <p>> ESTABLECIENDO CONEXIÓN SEGURA...</p>
+            <p>> DESENCRIPTANDO INTERFAZ_ <span class="blink">█</span></p>
         </div>
-        
-        <div class="garden-grid" id="jardinDigital"></div>
-    </main>
-
-    <footer>
-        [ © 2026 ] // GABRIEL LOPEZ // REALITY IS A CONSENSUS HALLUCINATION // END_OF_LINE_
-    </footer>
-
-    <!-- PROMPT TIPO MATRIX -->
-    <div id="matrix-prompt" class="matrix-prompt"></div>
-
-    <!-- VENTANA EMERGENTE (MODAL LECTOR PROFUNDO) -->
-    <div id="noteModal" class="modal-overlay">
-        <div class="modal-content">
-            <div class="modal-header">
-                <span class="modal-classification">[ CLASIFICACIÓN: ALTO SECRETO ]</span>
-                <button class="close-btn" id="closeModal">&times;</button>
-            </div>
-            <h2 id="modalTitle" class="modal-title"></h2>
-            <div class="modal-meta" id="modalMeta"></div>
-            
-            <div class="modal-body" id="modalBody">
-                <!-- El contenido se inyectará aquí -->
-            </div>
-            
-            <div class="modal-footer">
-                <a href="#" id="modalLink" class="cyber-btn" target="_blank">[ INFILTRARSE EN EL NODO ORIGINAL ]</a>
-            </div>
-        </div>
+        <div class="progress-bar-container"><div id="boot-progress"></div></div>
     </div>
 
-    <script src="app.js" defer></script>
+    <!-- Interfaz Principal (HUD) -->
+    <main id="hud-interface" class="hidden">
+        
+        <!-- Cabecera -->
+        <header class="hud-header">
+            <div class="glitch-title" data-text="SYS.CERO // NODO_CENTRAL">SYS.CERO // NODO_CENTRAL</div>
+            <div class="status-indicator">
+                <span class="dot blink"></span> ESTADO: ONLINE // HOST: GITHUB_PAGES
+            </div>
+        </header>
+
+        <!-- Navegación Cyberpunk -->
+        <nav class="hud-nav">
+            <button class="cyber-btn active" data-target="inicio">
+                <span class="btn-text">/INICIO</span>
+            </button>
+            <button class="cyber-btn" data-target="habilidades">
+                <span class="btn-text">/ESPECIFICACIONES</span>
+            </button>
+            <button class="cyber-btn" data-target="archivos">
+                <span class="btn-text">/ARCHIVOS_PROYECTOS</span>
+            </button>
+            <button class="cyber-btn" data-target="contacto">
+                <span class="btn-text">/ENLACE_COMUNICACIÓN</span>
+            </button>
+        </nav>
+
+        <!-- Pantalla de Visualización de Datos -->
+        <section class="hud-display">
+            <div class="display-frame">
+                <div class="frame-corners top-left"></div>
+                <div class="frame-corners top-right"></div>
+                <div class="frame-corners bottom-left"></div>
+                <div class="frame-corners bottom-right"></div>
+                
+                <!-- Aquí se inyecta el contenido con JS -->
+                <div id="content-screen" class="terminal-text">
+                    <!-- Contenido dinámico -->
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Pie de página del sistema -->
+    <footer id="hud-footer" class="hidden">
+        [ ID_USUARIO: INVITADO ] // [ ACCESO: LECTURA ] // PROTOCOLO_2026 // END_OF_LINE
+    </footer>
+
+    <script src="app.js"></script>
 </body>
 </html>
