@@ -8,11 +8,9 @@
 </head>
 <body>
 
-    <!-- Escaneo de monitor y viñeta oscura -->
     <div class="crt-scanlines"></div>
     <div class="vignette"></div>
 
-    <!-- Fondo interactivo -->
     <canvas id="networkCanvas"></canvas>
 
     <header>
@@ -35,7 +33,7 @@
     <!-- PROMPT TIPO MATRIX -->
     <div id="matrix-prompt" class="matrix-prompt"></div>
 
-    <!-- VENTANA EMERGENTE (MODAL LECTOR PROFUNDO) -->
+    <!-- VENTANA EMERGENTE -->
     <div id="noteModal" class="modal-overlay">
         <div class="modal-content">
             <div class="modal-header">
@@ -46,11 +44,12 @@
             <div class="modal-meta" id="modalMeta"></div>
             
             <div class="modal-body" id="modalBody">
-                <!-- El contenido se inyectará aquí -->
+                <!-- El contenido corto se inyecta aquí -->
             </div>
             
             <div class="modal-footer">
-                <a href="#" id="modalLink" target="_blank">[Verificar origen de la transmisión]</a>
+                <!-- Botón restaurado para leer la noticia completa -->
+                <a href="#" id="modalLink" class="cyber-btn" target="_blank">[ INFILTRARSE EN EL NODO ORIGINAL ]</a>
             </div>
         </div>
     </div>
