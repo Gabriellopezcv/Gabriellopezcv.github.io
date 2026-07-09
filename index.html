@@ -4,34 +4,36 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Memoria Caché | Interceptando Datos</title>
-    <!-- Vinculamos la hoja de estilos externa -->
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-    <!-- Capa de escaneo de monitor antiguo (Efecto Cyberpunk) -->
+    <!-- Capa de escaneo de monitor antiguo -->
     <div class="crt-scanlines"></div>
 
     <!-- Fondo interactivo -->
     <canvas id="networkCanvas"></canvas>
 
-    <!-- Cabecera sin menús, directa al mensaje -->
+    <!-- Cabecera con el nuevo lema inquietante -->
     <header>
-        <h1 class="glitch-text" data-text='"Tus recuerdos no son tuyos, son solo datos guardados en caché."'>
-            "Tus recuerdos no son tuyos,<br>son solo datos guardados en caché."<span class="cursor"></span>
+        <h1 class="glitch-text" data-text='"No eres el usuario. Eres el conjunto de datos de entrenamiento."'>
+            "No eres el usuario.<br>Eres el conjunto de datos de entrenamiento."<span class="cursor"></span>
         </h1>
     </header>
 
     <main>
-        <!-- Consola de estado -->
         <div id="terminal-loader">
             <span id="loader-text">[sys.boot] Iniciando protocolo de intercepción de señales...</span>
             <div class="progress-bar"><div class="progress" id="loading-bar"></div></div>
         </div>
         
-        <!-- Cuadrícula de tarjetas -->
         <div class="garden-grid" id="jardinDigital"></div>
     </main>
+
+    <!-- Nuevo pie de página (Footer) -->
+    <footer>
+        [ © 2026 ] // GABRIEL LOPEZ // ALL SYSTEM RIGHTS RESERVED. // END_OF_LINE_
+    </footer>
 
     <!-- VENTANA EMERGENTE (MODAL) -->
     <div id="noteModal" class="modal-overlay">
@@ -44,7 +46,6 @@
         </div>
     </div>
 
-    <!-- Vinculamos el archivo JavaScript externo -->
     <script src="app.js" defer></script>
 </body>
 </html>
