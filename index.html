@@ -3,86 +3,55 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SISTEMA.CERO | Archivos Desclasificados</title>
+    <title>SISTEMA.CERO | Archivos Clasificados</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-    <!-- Filtros CRT y viñeta -->
-    <div class="crt-overlay"></div>
-    <div class="scanlines"></div>
+    <div class="crt-scanlines"></div>
+    <div class="vignette"></div>
 
-    <!-- Canvas de Fondo (Partículas) -->
-    <canvas id="cyber-canvas"></canvas>
+    <canvas id="networkCanvas"></canvas>
 
-    <!-- PANTALLA DE CARGA (BOOT) -->
-    <div id="boot-screen">
-        <div class="boot-container">
-            <div id="boot-text" class="terminal-text">
-                > INICIALIZANDO SECUENCIA_
-            </div>
-            <div class="progress-bar-container"><div id="boot-progress"></div></div>
+    <header>
+        <h1 id="motto" class="decrypter-text"></h1>
+    </header>
+
+    <main>
+        <div id="terminal-loader">
+            <span id="loader-text">[sys.boot] Escaneando anomalías en el tejido de la red...</span>
+            <div class="progress-bar"><div class="progress" id="loading-bar"></div></div>
         </div>
-    </div>
-
-    <!-- INTERFAZ DEL SISTEMA (HUD) -->
-    <main id="hud-interface" class="hidden">
         
-        <header class="hud-header">
-            <div>
-                <h1 class="glitch-title" data-text="SYS.CERO // ARCHIVO">SYS.CERO // ARCHIVO</h1>
-                <p style="color: var(--matrix-green); font-size: 0.8rem; margin-top: 5px;">"La materia es una ilusión de la interfaz. La conciencia es la única variable no computable."</p>
-            </div>
-            <div class="status-indicator">
-                <span class="dot blink"></span> SISTEMA ESTABLE // MODO LECTURA
-            </div>
-        </header>
-
-        <!-- Navegación por Categorías -->
-        <nav class="hud-nav" id="category-nav">
+        <!-- Navegación por Categorías Secretas -->
+        <nav class="hud-nav hidden" id="category-nav" style="margin-bottom: 25px; border-bottom: 1px solid rgba(0, 243, 255, 0.3); padding-bottom: 15px;">
             <button class="cyber-btn active" data-category="inicio">/INICIO</button>
-            <button class="cyber-btn" data-category="cuantica">/FÍSICA_CUÁNTICA</button>
-            <button class="cyber-btn" data-category="ia">/I.A_AVANZADA</button>
-            <button class="cyber-btn" data-category="transhumanismo">/TRANSHUMANISMO</button>
+            <button class="cyber-btn" data-category="wikileaks">/WIKI_LEAKS</button>
+            <button class="cyber-btn" data-category="nsa">/ARCHIVOS_NSA</button>
+            <button class="cyber-btn" data-category="uap">/PENTAGON_UAP</button>
         </nav>
 
-        <!-- Pantalla de Datos Central -->
-        <section class="hud-display">
-            <div class="display-frame">
-                <div class="frame-corners top-left"></div>
-                <div class="frame-corners top-right"></div>
-                <div class="frame-corners bottom-left"></div>
-                <div class="frame-corners bottom-right"></div>
-                
-                <!-- Aquí se cargan los artículos de la categoría -->
-                <div id="grid-container" class="data-grid">
-                    <!-- Los artículos se inyectan aquí -->
-                </div>
-            </div>
-        </section>
-
+        <div class="garden-grid" id="jardinDigital"></div>
     </main>
 
-    <!-- VENTANA DE LECTURA (MODAL PROFUNDO) -->
+    <footer>
+        [ © 2026 ] // GABRIEL LOPEZ // REALITY IS A CONSENSUS HALLUCINATION // END_OF_LINE_
+    </footer>
+
+    <!-- VENTANA DE LECTURA DE ARCHIVOS -->
     <div id="reader-modal" class="modal-overlay hidden">
         <div class="modal-content">
             <div class="modal-header">
-                <span style="color: var(--red); font-weight: bold; letter-spacing: 2px;">[ CLASIFICACIÓN: ALTO SECRETO ]</span>
+                <span style="color: #ff003c; font-weight: bold; letter-spacing: 2px;">[ CLASIFICACIÓN: ALTO SECRETO ]</span>
                 <button class="close-btn" id="close-modal-btn">&times;</button>
             </div>
             <div class="modal-body-container">
                 <h2 id="reader-title" class="reader-title"></h2>
                 <div class="reader-meta" id="reader-meta"></div>
-                <div id="reader-content" class="reader-text">
-                    <!-- Texto largo del artículo -->
-                </div>
+                <div id="reader-content" class="reader-text"></div>
             </div>
         </div>
     </div>
-
-    <footer>
-        [ GABRIEL.LOPEZ ] // LOS RECUERDOS SON CACHÉ // 2026_
-    </footer>
 
     <script src="app.js"></script>
 </body>
