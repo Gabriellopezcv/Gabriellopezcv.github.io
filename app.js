@@ -129,7 +129,7 @@ const decrypter = new TextScramble(document.getElementById('motto'));
 setTimeout(() => { decrypter.setText(fraseFilosofica); }, 500);
 
 // ==========================================
-// 3. ANIMACIÓN TIPO TERMINAL
+// 3. ANIMACIÓN TIPO TERMINAL PARA EL PROMPT
 // ==========================================
 const matrixPromptEl = document.getElementById('matrix-prompt');
 let isTyping = false;
@@ -160,7 +160,7 @@ setTimeout(() => {
 }, 2500);
 
 // ==========================================
-// 4. MOTOR NATIVO DE EXTRACCIÓN (ALLORIGINS PROXY)
+// 4. MOTOR DE EXTRACCIÓN DE DATOS REALES (LIMPIO Y RÁPIDO)
 // ==========================================
 const modal = document.getElementById('noteModal');
 const closeModalBtn = document.getElementById('closeModal');
@@ -174,23 +174,23 @@ window.abrirArticulo = function(index) {
     document.getElementById('modalTitle').innerText = articulo.titulo;
     document.getElementById('modalMeta').innerText = `[ORIGEN: ${articulo.origen}] | SYS.DATE: ${articulo.fecha}`;
     
-    // Mostramos el contenido que hayamos logrado extraer
+    // Insertamos el contenido real que proporcione la fuente
     let htmlContent = articulo.contenidoCompleto;
     
-    // Mensaje sutil indicando si la información fue recortada por la fuente original
+    // Si la fuente da muy poco texto, avisamos al usuario amablemente para que use el enlace
     if (htmlContent.length < 500) {
         htmlContent += `
         <br><br>
         <div style="border-left: 3px solid #00f3ff; padding-left: 15px; margin-top: 20px; color: #8c9bb0; font-size: 0.9em; font-family: 'Share Tech Mono', monospace;">
-            [SYS.INFO]: <em>El proveedor de este nodo restringe la lectura completa a través de canales externos. Acceda al enlace original.</em>
+            [SYS.INFO]: <em>El proveedor de este nodo de datos restringe la lectura completa en modo remoto. Utilice el enlace inferior para acceder al documento íntegro en su servidor original.</em>
         </div>`;
     }
     
     document.getElementById('modalBody').innerHTML = htmlContent;
     
-    // Controlamos el botón de enlace original, SIEMPRE visible si hay link
+    // El botón de enlace siempre funcionará con datos reales
     const btnLink = document.getElementById('modalLink');
-    if(articulo.link && articulo.link !== "#") {
+    if(articulo.link) {
         btnLink.style.display = "inline-block";
         btnLink.href = articulo.link;
     } else {
@@ -200,6 +200,7 @@ window.abrirArticulo = function(index) {
     modal.classList.add('active');
 }
 
+// Mezcla los resultados para que cada vez que hagas clic en "breach the firewall" veas noticias distintas
 function shuffleArray(array) {
     for (let i = array.length - 1; i > 0; i--) {
         const j = Math.floor(Math.random() * (i + 1));
@@ -230,6 +231,7 @@ function renderizarSetAleatorio() {
     });
 }
 
+// Interacción del texto "breach the firewall"
 matrixPromptEl.addEventListener('click', () => {
     if(isTyping || masterDataPool.length === 0) return; 
     
@@ -247,63 +249,12 @@ matrixPromptEl.addEventListener('click', () => {
     });
 });
 
-// Función nativa robusta que NO usa rss2json, usa AllOrigins Proxy y parsea el XML a mano
-async function fetchNativeRSS(url, sourceId) {
-    try {
-        const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(url)}`;
-        const response = await fetch(proxyUrl);
-        if (!response.ok) throw new Error("Fallo de Proxy");
-        
-        const data = await response.json();
-        
-        const parser = new DOMParser();
-        const xml = parser.parseFromString(data.contents, "text/xml");
-        const items = Array.from(xml.querySelectorAll("item"));
-
-        return items.map(item => {
-            const titulo = item.querySelector("title")?.textContent || "Transmisión Interceptada";
-            const link = item.querySelector("link")?.textContent || "#";
-            const fechaRaw = item.querySelector("pubDate")?.textContent || "";
-            
-            let fecha = "SYS.DATE";
-            if (fechaRaw) {
-                const dateObj = new Date(fechaRaw);
-                if (!isNaN(dateObj)) fecha = dateObj.toISOString().split('T')[0];
-            }
-
-            // Las fuentes serias usan etiquetas variadas para el contenido largo.
-            const contentEncoded = item.getElementsByTagNameNS("*", "encoded");
-            let contenidoHtml = "";
-            if (contentEncoded.length > 0) {
-                contenidoHtml = contentEncoded[0].textContent;
-            } else {
-                contenidoHtml = item.querySelector("description")?.textContent || "";
-            }
-
-            // Limpiamos el texto para el resumen corto de la tarjeta
-            let tempDiv = document.createElement("div");
-            tempDiv.innerHTML = contenidoHtml;
-            let resumenLimpio = tempDiv.textContent || tempDiv.innerText || "";
-
-            return {
-                titulo,
-                fecha,
-                link,
-                origen: sourceId,
-                resumen: resumenLimpio.substring(0, 115) + "...",
-                contenidoCompleto: contenidoHtml
-            };
-        });
-    } catch (error) {
-        console.warn(`[SYS.WARN] Bloqueo detectado en ${sourceId}.`);
-        return [];
-    }
-}
-
+// Función central: Carga rápida de feeds sin proxy lento ni claves inventadas
 async function cazarSeñalesGlobales() {
     const loaderText = document.getElementById('loader-text');
     const loadingBar = document.getElementById('loading-bar');
     
+    // Fuentes científicas y futuristas reales (MIT, Phys.org, Aeon Philosophy...)
     const fuentes = [
         { url: 'https://phys.org/rss-feed/physics-news/', id: '/PHYS.ORG_QUANTUM' },
         { url: 'https://singularityhub.com/feed/', id: '/SINGULARITY_HUB' },
@@ -314,25 +265,48 @@ async function cazarSeñalesGlobales() {
 
     try {
         loadingBar.style.width = '30%';
-        loaderText.innerText = "[sys.log] Estableciendo túneles de intercepción nativos...";
+        
+        // Usamos el servicio público rss2json sin parámetros extraños para que sea rápido
+        const peticiones = fuentes.map(fuente => 
+            fetch(`https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(fuente.url)}&count=15`)
+            .then(res => res.json())
+            .then(data => ({ sourceId: fuente.id, data: data }))
+            .catch(() => null)
+        );
 
-        // Ejecutamos las descargas de forma asíncrona
-        const promesas = fuentes.map(fuente => fetchNativeRSS(fuente.url, fuente.id));
-        const arraysDeNoticias = await Promise.all(promesas);
-
+        const resultados = await Promise.all(peticiones);
         loadingBar.style.width = '80%';
-        loaderText.innerText = "[sys.log] Teorías interceptadas. Compilando en matriz local...";
+        loaderText.innerText = "[sys.log] Teorías interceptadas. Compilando...";
 
-        // Agrupamos
-        arraysDeNoticias.forEach(array => {
-            if (array && array.length > 0) {
-                masterDataPool = masterDataPool.concat(array);
+        resultados.forEach(resultado => {
+            if (resultado && resultado.data.status === 'ok' && resultado.data.items) {
+                const noticiasAdaptadas = resultado.data.items.map(item => {
+                    let divTemporal = document.createElement("div");
+                    
+                    // Extraemos todo el contenido de texto que la fuente quiera darnos
+                    let rawContent = item.content || item.description || "";
+                    divTemporal.innerHTML = rawContent;
+                    let textoLimpio = divTemporal.textContent || divTemporal.innerText || "";
+                    
+                    return {
+                        titulo: item.title,
+                        fecha: item.pubDate ? item.pubDate.split(' ')[0] : 'SYS.DATE',
+                        link: item.link,
+                        origen: resultado.sourceId,
+                        resumen: textoLimpio.substring(0, 110) + "...", 
+                        contenidoCompleto: rawContent, 
+                    };
+                });
+                masterDataPool = masterDataPool.concat(noticiasAdaptadas);
             }
         });
 
-        // Solo saltará a la copia de seguridad si TODAS las webs han fallado a la vez
-        if (masterDataPool.length < 5) throw new Error('Corte global');
+        // Si realmente no pudo cargar NINGUNA fuente (porque no tienes internet, por ejemplo)
+        if (masterDataPool.length === 0) {
+            throw new Error("No se pudo interceptar ninguna señal.");
+        }
 
+        // Si todo va bien, termina de cargar y muestra las tarjetas
         loadingBar.style.width = '100%';
         setTimeout(() => {
             document.getElementById('terminal-loader').style.display = 'none';
@@ -340,36 +314,12 @@ async function cazarSeñalesGlobales() {
         }, 800);
 
     } catch (error) {
-        loaderText.innerText = "[ALERTA] Protocolos externos bloqueados. Desplegando archivo seguro...";
+        // En caso de fallo crítico de internet, informamos claramente al usuario en lugar de mentirle con datos falsos
+        loaderText.innerText = "[ERROR_CRÍTICO] Conexión rechazada por el servidor central. Comprueba tu conexión a la red.";
         loadingBar.style.background = '#ff003c';
-        
-        setTimeout(() => {
-            document.getElementById('terminal-loader').style.display = 'none';
-            masterDataPool = generarArchivoRespaldo();
-            renderizarSetAleatorio();
-        }, 1500);
+        loadingBar.style.width = '100%';
     }
 }
 
-function generarArchivoRespaldo() {
-    const ciencia = [
-        { t: "Físicos demuestran que el universo podría ser una red neuronal gigantesca", c: "Un nuevo estudio sugiere que la estructura del cosmos a nivel macroscópico imita de forma asombrosa las conexiones sinápticas de una IA generativa." },
-        { t: "Entrelazamiento cuántico logrado a temperatura ambiente", c: "La transferencia de información instantánea sin límite de distancia ya es teóricamente posible según el laboratorio de Copenhague." },
-        { t: "Anomalía en el fondo cósmico de microondas", c: "Investigadores detectan un patrón repetitivo en el eco del Big Bang que coincide con los esquemas de corrección de errores informáticos. ¿Es el universo un holograma?" },
-        { t: "La Conciencia Artificial emerge en un modelo de lenguaje de 10 Trillones de parámetros", c: "Filósofos e ingenieros debaten tras la primera entrevista donde un sistema solicitó derechos legales y demostró miedo a ser desconectado." }
-    ];
-    let backup = [];
-    for(let i = 0; i < 20; i++) {
-        let base = ciencia[i % ciencia.length];
-        backup.push({
-            titulo: `${base.t} [EXP-${Math.floor(Math.random() * 999)}]`,
-            fecha: `2026-ERR-${Math.floor(Math.random() * 99)}`,
-            link: "#", origen: "/SYS_ARCHIVE",
-            resumen: base.c.substring(0, 100) + "...",
-            contenidoCompleto: `<p>${base.c}</p><br><p>ESTADO: EXPERIMENTO CERRADO AL PÚBLICO. La humanidad no está preparada para la implicación de estos resultados.</p>`
-        });
-    }
-    return backup;
-}
-
+// Iniciar secuencias
 cazarSeñalesGlobales();
