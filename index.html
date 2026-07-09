@@ -3,56 +3,50 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SISTEMA.CERO // GABRIEL.LOPEZ</title>
+    <title>SISTEMA.CERO | Archivos Desclasificados</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-    <!-- Filtros de monitor CRT -->
+    <!-- Filtros CRT y viñeta -->
     <div class="crt-overlay"></div>
     <div class="scanlines"></div>
 
-    <!-- Motor Gráfico de Fondo -->
+    <!-- Canvas de Fondo (Partículas) -->
     <canvas id="cyber-canvas"></canvas>
 
-    <!-- Pantalla de Arranque (Desaparece al cargar) -->
+    <!-- PANTALLA DE CARGA (BOOT) -->
     <div id="boot-screen">
-        <div class="boot-text">
-            <p>> INICIANDO SISTEMA.CERO...</p>
-            <p>> ESTABLECIENDO CONEXIÓN SEGURA...</p>
-            <p>> DESENCRIPTANDO INTERFAZ_ <span class="blink">█</span></p>
+        <div class="boot-container">
+            <div id="boot-text" class="terminal-text">
+                > INICIALIZANDO SECUENCIA_
+            </div>
+            <div class="progress-bar-container"><div id="boot-progress"></div></div>
         </div>
-        <div class="progress-bar-container"><div id="boot-progress"></div></div>
     </div>
 
-    <!-- Interfaz Principal (HUD) -->
+    <!-- INTERFAZ DEL SISTEMA (HUD) -->
     <main id="hud-interface" class="hidden">
         
-        <!-- Cabecera -->
         <header class="hud-header">
-            <div class="glitch-title" data-text="SYS.CERO // NODO_CENTRAL">SYS.CERO // NODO_CENTRAL</div>
+            <div>
+                <h1 class="glitch-title" data-text="SYS.CERO // ARCHIVO">SYS.CERO // ARCHIVO</h1>
+                <p style="color: var(--matrix-green); font-size: 0.8rem; margin-top: 5px;">"La materia es una ilusión de la interfaz. La conciencia es la única variable no computable."</p>
+            </div>
             <div class="status-indicator">
-                <span class="dot blink"></span> ESTADO: ONLINE // HOST: GITHUB_PAGES
+                <span class="dot blink"></span> SISTEMA ESTABLE // MODO LECTURA
             </div>
         </header>
 
-        <!-- Navegación Cyberpunk -->
-        <nav class="hud-nav">
-            <button class="cyber-btn active" data-target="inicio">
-                <span class="btn-text">/INICIO</span>
-            </button>
-            <button class="cyber-btn" data-target="habilidades">
-                <span class="btn-text">/ESPECIFICACIONES</span>
-            </button>
-            <button class="cyber-btn" data-target="archivos">
-                <span class="btn-text">/ARCHIVOS_PROYECTOS</span>
-            </button>
-            <button class="cyber-btn" data-target="contacto">
-                <span class="btn-text">/ENLACE_COMUNICACIÓN</span>
-            </button>
+        <!-- Navegación por Categorías -->
+        <nav class="hud-nav" id="category-nav">
+            <button class="cyber-btn active" data-category="inicio">/INICIO</button>
+            <button class="cyber-btn" data-category="cuantica">/FÍSICA_CUÁNTICA</button>
+            <button class="cyber-btn" data-category="ia">/I.A_AVANZADA</button>
+            <button class="cyber-btn" data-category="transhumanismo">/TRANSHUMANISMO</button>
         </nav>
 
-        <!-- Pantalla de Visualización de Datos -->
+        <!-- Pantalla de Datos Central -->
         <section class="hud-display">
             <div class="display-frame">
                 <div class="frame-corners top-left"></div>
@@ -60,18 +54,34 @@
                 <div class="frame-corners bottom-left"></div>
                 <div class="frame-corners bottom-right"></div>
                 
-                <!-- Aquí se inyecta el contenido con JS -->
-                <div id="content-screen" class="terminal-text">
-                    <!-- Contenido dinámico -->
+                <!-- Aquí se cargan los artículos de la categoría -->
+                <div id="grid-container" class="data-grid">
+                    <!-- Los artículos se inyectan aquí -->
                 </div>
             </div>
         </section>
 
     </main>
 
-    <!-- Pie de página del sistema -->
-    <footer id="hud-footer" class="hidden">
-        [ ID_USUARIO: INVITADO ] // [ ACCESO: LECTURA ] // PROTOCOLO_2026 // END_OF_LINE
+    <!-- VENTANA DE LECTURA (MODAL PROFUNDO) -->
+    <div id="reader-modal" class="modal-overlay hidden">
+        <div class="modal-content">
+            <div class="modal-header">
+                <span style="color: var(--red); font-weight: bold; letter-spacing: 2px;">[ CLASIFICACIÓN: ALTO SECRETO ]</span>
+                <button class="close-btn" id="close-modal-btn">&times;</button>
+            </div>
+            <div class="modal-body-container">
+                <h2 id="reader-title" class="reader-title"></h2>
+                <div class="reader-meta" id="reader-meta"></div>
+                <div id="reader-content" class="reader-text">
+                    <!-- Texto largo del artículo -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        [ GABRIEL.LOPEZ ] // LOS RECUERDOS SON CACHÉ // 2026_
     </footer>
 
     <script src="app.js"></script>
