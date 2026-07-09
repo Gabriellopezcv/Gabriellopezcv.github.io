@@ -160,7 +160,7 @@ setTimeout(() => {
 }, 2500);
 
 // ==========================================
-// 4. MOTOR DE EXTRACCIÓN DE DATOS REALES (LIMPIO Y RÁPIDO)
+// 4. NUEVO MOTOR DE INTERCEPCIÓN (DOBLE PROXY - SIN LÍMITES)
 // ==========================================
 const modal = document.getElementById('noteModal');
 const closeModalBtn = document.getElementById('closeModal');
@@ -174,23 +174,23 @@ window.abrirArticulo = function(index) {
     document.getElementById('modalTitle').innerText = articulo.titulo;
     document.getElementById('modalMeta').innerText = `[ORIGEN: ${articulo.origen}] | SYS.DATE: ${articulo.fecha}`;
     
-    // Insertamos el contenido real que proporcione la fuente
+    // Contenido real interceptado
     let htmlContent = articulo.contenidoCompleto;
     
-    // Si la fuente da muy poco texto, avisamos al usuario amablemente para que use el enlace
+    // Si la revista ha capado el texto a menos de 500 caracteres, añadimos el mensaje de aviso elegante
     if (htmlContent.length < 500) {
         htmlContent += `
         <br><br>
         <div style="border-left: 3px solid #00f3ff; padding-left: 15px; margin-top: 20px; color: #8c9bb0; font-size: 0.9em; font-family: 'Share Tech Mono', monospace;">
-            [SYS.INFO]: <em>El proveedor de este nodo de datos restringe la lectura completa en modo remoto. Utilice el enlace inferior para acceder al documento íntegro en su servidor original.</em>
+            [SYS.INFO]: <em>El proveedor restringe la lectura remota de este documento. Utilice el enlace inferior para acceder al archivo íntegro en su servidor original.</em>
         </div>`;
     }
     
     document.getElementById('modalBody').innerHTML = htmlContent;
     
-    // El botón de enlace siempre funcionará con datos reales
+    // El botón siempre funciona con la noticia real
     const btnLink = document.getElementById('modalLink');
-    if(articulo.link) {
+    if(articulo.link && articulo.link !== "#") {
         btnLink.style.display = "inline-block";
         btnLink.href = articulo.link;
     } else {
@@ -200,7 +200,6 @@ window.abrirArticulo = function(index) {
     modal.classList.add('active');
 }
 
-// Mezcla los resultados para que cada vez que hagas clic en "breach the firewall" veas noticias distintas
 function shuffleArray(array) {
     for (let i = array.length - 1; i > 0; i--) {
         const j = Math.floor(Math.random() * (i + 1));
@@ -231,7 +230,6 @@ function renderizarSetAleatorio() {
     });
 }
 
-// Interacción del texto "breach the firewall"
 matrixPromptEl.addEventListener('click', () => {
     if(isTyping || masterDataPool.length === 0) return; 
     
@@ -249,12 +247,76 @@ matrixPromptEl.addEventListener('click', () => {
     });
 });
 
-// Función central: Carga rápida de feeds sin proxy lento ni claves inventadas
+// Función súper robusta: Intenta 2 proxies distintos y lee el XML nativo.
+async function fetchNativeRSS(url, sourceId) {
+    const proxies = [
+        `https://api.allorigins.win/raw?url=`,
+        `https://api.codetabs.com/v1/proxy?quest=`
+    ];
+
+    for (let proxy of proxies) {
+        try {
+            const response = await fetch(proxy + encodeURIComponent(url));
+            if (!response.ok) continue;
+            
+            const text = await response.text();
+            const parser = new DOMParser();
+            const xml = parser.parseFromString(text, "text/xml");
+            
+            // Coge los artículos (algunos XML usan 'item', otros 'entry')
+            const items = Array.from(xml.querySelectorAll("item, entry"));
+            if (items.length === 0) continue; // Si está vacío, prueba el otro proxy
+
+            return items.map(item => {
+                const titulo = item.querySelector("title")?.textContent || "Transmisión Interceptada";
+                
+                // Buscar el enlace correcto
+                const linkEl = item.querySelector("link");
+                const link = linkEl ? (linkEl.textContent || linkEl.getAttribute("href")) : "#";
+                
+                // Buscar fecha
+                const fechaRaw = item.querySelector("pubDate, published, updated")?.textContent || "";
+                let fecha = "SYS.DATE";
+                if (fechaRaw) {
+                    const dateObj = new Date(fechaRaw);
+                    if (!isNaN(dateObj)) fecha = dateObj.toISOString().split('T')[0];
+                }
+
+                // Buscar el contenido más largo que proporcione la web
+                const contentEncoded = item.getElementsByTagNameNS("*", "encoded");
+                let contenidoHtml = "";
+                if (contentEncoded.length > 0) {
+                    contenidoHtml = contentEncoded[0].textContent;
+                } else {
+                    contenidoHtml = item.querySelector("description, content")?.textContent || "";
+                }
+
+                // Limpiar HTML para el resumen de la tarjeta
+                let tempDiv = document.createElement("div");
+                tempDiv.innerHTML = contenidoHtml;
+                let resumenLimpio = tempDiv.textContent || tempDiv.innerText || "";
+
+                return {
+                    titulo,
+                    fecha,
+                    link,
+                    origen: sourceId,
+                    resumen: resumenLimpio.substring(0, 115) + "...",
+                    contenidoCompleto: contenidoHtml
+                };
+            });
+        } catch (error) {
+            // Falla en silencio y prueba el siguiente proxy
+            console.warn(`[SYS] Reintentando conexión para ${sourceId}...`);
+        }
+    }
+    return []; // Si fallan todos, devuelve array vacío
+}
+
 async function cazarSeñalesGlobales() {
     const loaderText = document.getElementById('loader-text');
     const loadingBar = document.getElementById('loading-bar');
     
-    // Fuentes científicas y futuristas reales (MIT, Phys.org, Aeon Philosophy...)
     const fuentes = [
         { url: 'https://phys.org/rss-feed/physics-news/', id: '/PHYS.ORG_QUANTUM' },
         { url: 'https://singularityhub.com/feed/', id: '/SINGULARITY_HUB' },
@@ -265,48 +327,26 @@ async function cazarSeñalesGlobales() {
 
     try {
         loadingBar.style.width = '30%';
-        
-        // Usamos el servicio público rss2json sin parámetros extraños para que sea rápido
-        const peticiones = fuentes.map(fuente => 
-            fetch(`https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(fuente.url)}&count=15`)
-            .then(res => res.json())
-            .then(data => ({ sourceId: fuente.id, data: data }))
-            .catch(() => null)
-        );
+        loaderText.innerText = "[sys.log] Estableciendo túneles seguros. Por favor espere...";
 
-        const resultados = await Promise.all(peticiones);
+        // Ejecutamos las descargas de forma simultánea a través del sistema Doble Proxy
+        const promesas = fuentes.map(fuente => fetchNativeRSS(fuente.url, fuente.id));
+        const arraysDeNoticias = await Promise.all(promesas);
+
         loadingBar.style.width = '80%';
-        loaderText.innerText = "[sys.log] Teorías interceptadas. Compilando...";
+        loaderText.innerText = "[sys.log] Teorías interceptadas. Compilando en matriz local...";
 
-        resultados.forEach(resultado => {
-            if (resultado && resultado.data.status === 'ok' && resultado.data.items) {
-                const noticiasAdaptadas = resultado.data.items.map(item => {
-                    let divTemporal = document.createElement("div");
-                    
-                    // Extraemos todo el contenido de texto que la fuente quiera darnos
-                    let rawContent = item.content || item.description || "";
-                    divTemporal.innerHTML = rawContent;
-                    let textoLimpio = divTemporal.textContent || divTemporal.innerText || "";
-                    
-                    return {
-                        titulo: item.title,
-                        fecha: item.pubDate ? item.pubDate.split(' ')[0] : 'SYS.DATE',
-                        link: item.link,
-                        origen: resultado.sourceId,
-                        resumen: textoLimpio.substring(0, 110) + "...", 
-                        contenidoCompleto: rawContent, 
-                    };
-                });
-                masterDataPool = masterDataPool.concat(noticiasAdaptadas);
+        arraysDeNoticias.forEach(array => {
+            if (array && array.length > 0) {
+                masterDataPool = masterDataPool.concat(array);
             }
         });
 
-        // Si realmente no pudo cargar NINGUNA fuente (porque no tienes internet, por ejemplo)
+        // Solo saltará a error si LITERALMENTE no tienes internet o han caído todos los servidores
         if (masterDataPool.length === 0) {
-            throw new Error("No se pudo interceptar ninguna señal.");
+            throw new Error('Corte de red');
         }
 
-        // Si todo va bien, termina de cargar y muestra las tarjetas
         loadingBar.style.width = '100%';
         setTimeout(() => {
             document.getElementById('terminal-loader').style.display = 'none';
@@ -314,8 +354,8 @@ async function cazarSeñalesGlobales() {
         }, 800);
 
     } catch (error) {
-        // En caso de fallo crítico de internet, informamos claramente al usuario en lugar de mentirle con datos falsos
-        loaderText.innerText = "[ERROR_CRÍTICO] Conexión rechazada por el servidor central. Comprueba tu conexión a la red.";
+        // CERO noticias falsas. Si hay un error real de internet, te lo dice honestamente.
+        loaderText.innerText = "[ERROR_CRÍTICO] Conexión rechazada. Protocolos externos bloqueados temporalmente. Comprueba tu red.";
         loadingBar.style.background = '#ff003c';
         loadingBar.style.width = '100%';
     }
