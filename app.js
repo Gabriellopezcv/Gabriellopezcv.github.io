@@ -126,15 +126,45 @@ class TextScramble {
 
 const fraseFilosofica = "La materia es una ilusión de la interfaz. La conciencia es la única variable no computable.";
 const decrypter = new TextScramble(document.getElementById('motto'));
-// Ejecutar desencriptado al cargar la página
 setTimeout(() => { decrypter.setText(fraseFilosofica); }, 500);
 
 // ==========================================
-// 3. NÚCLEO DE DATOS Y CONEJO BLANCO
+// 3. ANIMACIÓN TIPO MATRIX PARA EL PROMPT
+// ==========================================
+const matrixPromptEl = document.getElementById('matrix-prompt');
+let isTyping = false;
+
+function typewriterEffect(text, element, speed = 100, callback) {
+    if(isTyping) return;
+    isTyping = true;
+    element.innerText = '';
+    let i = 0;
+    
+    function type() {
+        if (i < text.length) {
+            element.innerText += text.charAt(i);
+            i++;
+            setTimeout(type, speed + (Math.random() * 50)); // Randomize para que parezca humano
+        } else {
+            isTyping = false;
+            if(callback) callback();
+        }
+    }
+    type();
+}
+
+// Inicia el primer tecleo a los 2.5 segundos de entrar en la web
+setTimeout(() => {
+    typewriterEffect("> Sigue al conejo blanco", matrixPromptEl, 80);
+}, 2500);
+
+
+// ==========================================
+// 4. NÚCLEO DE DATOS
 // ==========================================
 const modal = document.getElementById('noteModal');
 const closeModalBtn = document.getElementById('closeModal');
-let masterDataPool = []; // Aquí guardaremos TODAS las noticias interceptadas
+let masterDataPool = []; 
 
 closeModalBtn.addEventListener('click', () => modal.classList.remove('active'));
 modal.addEventListener('click', (e) => { if (e.target === modal) modal.classList.remove('active'); });
@@ -144,12 +174,8 @@ window.abrirArticulo = function(index) {
     document.getElementById('modalTitle').innerText = articulo.titulo;
     document.getElementById('modalMeta').innerText = `[ORIGEN: ${articulo.origen}] | SYS.DATE: ${articulo.fecha}`;
     
-    // Inyectamos el contenido. Si el RSS dio poco texto, avisamos.
-    let cuerpo = articulo.contenidoCompleto;
-    if(cuerpo.length < 300) {
-        cuerpo += `<br><br><p style="color:#ff003c;">[ADVERTENCIA DEL SISTEMA: El protocolo de extracción fue interrumpido. Archivo fragmentado. Acceda al nodo original para recuperar la transmisión completa.]</p>`;
-    }
-    document.getElementById('modalBody').innerHTML = cuerpo;
+    // Inyecta el texto limpio sin ningún cartel rojo de error
+    document.getElementById('modalBody').innerHTML = articulo.contenidoCompleto;
     
     const btnLink = document.getElementById('modalLink');
     if(articulo.link !== "#") {
@@ -161,7 +187,6 @@ window.abrirArticulo = function(index) {
     modal.classList.add('active');
 }
 
-// Mezcla un array aleatoriamente (Algoritmo Fisher-Yates)
 function shuffleArray(array) {
     for (let i = array.length - 1; i > 0; i--) {
         const j = Math.floor(Math.random() * (i + 1));
@@ -170,11 +195,9 @@ function shuffleArray(array) {
     return array;
 }
 
-// Extrae un set de tarjetas y las pinta en pantalla
 function renderizarSetAleatorio() {
     const grid = document.getElementById('jardinDigital');
     
-    // Cogemos 15 artículos aleatorios del pool general
     shuffleArray(masterDataPool);
     window.currentViewData = masterDataPool.slice(0, 15);
     
@@ -194,33 +217,32 @@ function renderizarSetAleatorio() {
     });
 }
 
-// Botón Conejo Blanco: Refresca el contenido sin recargar la página
-document.getElementById('rabbit-btn').addEventListener('click', () => {
-    const grid = document.getElementById('jardinDigital');
+// Botón "Conejo Blanco" convertido en Texto animado de Matrix
+matrixPromptEl.addEventListener('click', () => {
+    if(isTyping) return; // Evita clics dobles mientras teclea
     
-    // 1. Efecto visual de desvanecimiento
+    const grid = document.getElementById('jardinDigital');
     grid.classList.add('glitching');
     
-    // 2. Cambiamos el texto del lema de nuevo para dar sensación de recarga del sistema
     decrypter.setText("Recalibrando parámetros de simulación...");
-    
-    setTimeout(() => {
-        // 3. Pintamos nuevos datos
-        renderizarSetAleatorio();
-        // 4. Quitamos el desvanecimiento
-        grid.classList.remove('glitching');
-        
-        // 5. Devolvemos el lema original
-        setTimeout(() => decrypter.setText(fraseFilosofica), 1000);
-    }, 500); // 500ms de transición
+    typewriterEffect("> Despertando al sistema...", matrixPromptEl, 50, () => {
+        setTimeout(() => {
+            renderizarSetAleatorio();
+            grid.classList.remove('glitching');
+            setTimeout(() => decrypter.setText(fraseFilosofica), 1000);
+            
+            // Vuelve a teclear la frase original tras la recarga
+            setTimeout(() => {
+                typewriterEffect("> Sigue al conejo blanco", matrixPromptEl, 80);
+            }, 1500);
+        }, 500);
+    });
 });
 
-// Extracción inicial de Datos de Ciencia y Futuro
 async function cazarSeñalesGlobales() {
     const loaderText = document.getElementById('loader-text');
     const loadingBar = document.getElementById('loading-bar');
     
-    // Fuentes estrictamente científicas, IA, Física y Futuro (Sin videojuegos)
     const fuentes = [
         { url: 'https://phys.org/rss-feed/physics-news/', id: '/PHYS.ORG_QUANTUM' },
         { url: 'https://singularityhub.com/feed/', id: '/SINGULARITY_HUB' },
@@ -267,7 +289,7 @@ async function cazarSeñalesGlobales() {
         loadingBar.style.width = '100%';
         setTimeout(() => {
             document.getElementById('terminal-loader').style.display = 'none';
-            renderizarSetAleatorio(); // Pintamos el primer set
+            renderizarSetAleatorio(); 
         }, 800);
 
     } catch (error) {
@@ -282,7 +304,6 @@ async function cazarSeñalesGlobales() {
     }
 }
 
-// Simulacro profundo en caso de fallo de red
 function generarArchivoRespaldo() {
     const ciencia = [
         { t: "Físicos demuestran que el universo podría ser una red neuronal gigantesca", c: "Un nuevo estudio sugiere que la estructura del cosmos a nivel macroscópico imita de forma asombrosa las conexiones sinápticas de una IA generativa." },
