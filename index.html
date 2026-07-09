@@ -3,154 +3,37 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Memoria Caché | Gabriel López</title>
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap');
-
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-
-        body, html {
-            width: 100%; height: 100%;
-            background-color: #020306; 
-            font-family: 'Share Tech Mono', monospace;
-            color: #c8e0ff; overflow-x: hidden; 
-        }
-
-        #networkCanvas {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 0;
-            background: radial-gradient(circle at center, #0b101e 0%, #020306 100%);
-        }
-
-        nav, header, main { position: relative; z-index: 10; }
-
-        nav {
-            width: 100%; padding: 20px 50px; display: flex; justify-content: space-between;
-            align-items: center; background: rgba(11, 16, 30, 0.7); backdrop-filter: blur(10px);
-            border-bottom: 1px solid rgba(0, 243, 255, 0.2); position: sticky; top: 0;
-        }
-
-        .logo {
-            font-size: 1.5rem; color: #00f3ff; text-shadow: 0 0 10px rgba(0, 243, 255, 0.5);
-            font-weight: bold; text-transform: uppercase;
-        }
-
-        .nav-links a { color: #8c9bb0; text-decoration: none; margin-left: 20px; transition: color 0.3s; }
-        .nav-links a:hover { color: #00f3ff; }
-
-        header { text-align: center; padding: 60px 20px 20px; }
-        header h1 {
-            font-size: clamp(1.2rem, 3vw, 2.5rem); color: #c8e0ff; font-weight: 400;
-            line-height: 1.6; text-shadow: 0 0 10px rgba(0, 200, 255, 0.4); letter-spacing: 2px;
-        }
-
-        .cursor {
-            display: inline-block; width: 12px; height: 1em; background-color: #00f3ff;
-            vertical-align: middle; animation: blink 1s step-end infinite; margin-left: 8px;
-            box-shadow: 0 0 10px #00f3ff; transform: translateY(-2px);
-        }
-
-        @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
-
-        #loader { text-align: center; font-size: 1.1rem; color: #00f3ff; margin: 40px 0; min-height: 30px;}
-        .warning-text { color: #ffb86c !important; }
-
-        main { padding: 20px 40px 100px; max-width: 1300px; margin: 0 auto; }
-
-        .garden-grid {
-            display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 25px;
-        }
-
-        .node-card {
-            background: rgba(11, 16, 30, 0.7); backdrop-filter: blur(12px);
-            border: 1px solid rgba(0, 243, 255, 0.15); border-radius: 8px;
-            padding: 25px; transition: all 0.3s ease; position: relative; overflow: hidden;
-            cursor: pointer; display: flex; flex-direction: column; justify-content: space-between;
-            min-height: 220px;
-        }
-
-        .node-card:hover {
-            transform: translateY(-5px); border-color: rgba(0, 243, 255, 0.6);
-            box-shadow: 0 10px 20px rgba(0, 243, 255, 0.1); background: rgba(17, 26, 48, 0.85);
-        }
-
-        .node-card::before {
-            content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 3px;
-            background: linear-gradient(90deg, #00f3ff, #8a2be2); opacity: 0; transition: opacity 0.3s ease;
-        }
-        .node-card:hover::before { opacity: 1; }
-
-        .node-meta {
-            display: flex; justify-content: space-between; font-size: 0.8rem; color: #8c9bb0;
-            margin-bottom: 15px; border-bottom: 1px dashed rgba(140, 155, 176, 0.3); padding-bottom: 10px;
-        }
-        .node-meta .tech-tag { color: #8a2be2; font-weight: bold; }
-        .node-title { font-size: 1.15rem; color: #00f3ff; margin-bottom: 15px; line-height: 1.4; }
-        .node-content { font-size: 0.9rem; line-height: 1.5; color: #a0b2c6; flex-grow: 1; }
-
-        /* MODAL (VENTANA FLOTANTE) */
-        .modal-overlay {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(2, 3, 6, 0.85); backdrop-filter: blur(8px); z-index: 100;
-            display: flex; justify-content: center; align-items: center;
-            opacity: 0; pointer-events: none; transition: opacity 0.3s ease;
-        }
-        .modal-overlay.active { opacity: 1; pointer-events: all; }
-        .modal-content {
-            background: rgba(11, 16, 30, 0.95); border: 1px solid rgba(0, 243, 255, 0.5);
-            border-radius: 8px; width: 90%; max-width: 800px; max-height: 85vh; overflow-y: auto;
-            padding: 40px; position: relative; transform: translateY(20px); transition: transform 0.3s ease;
-            box-shadow: 0 0 40px rgba(0, 243, 255, 0.15);
-        }
-        .modal-overlay.active .modal-content { transform: translateY(0); }
-        .close-btn {
-            position: absolute; top: 15px; right: 20px; font-size: 2rem; color: #00f3ff;
-            background: none; border: none; cursor: pointer; transition: color 0.3s;
-        }
-        .close-btn:hover { color: #8a2be2; }
-        .modal-title { color: #00f3ff; margin-bottom: 10px; font-size: 1.6rem; line-height: 1.3;}
-        .modal-meta {
-            font-size: 0.85rem; color: #8c9bb0; margin-bottom: 25px;
-            border-bottom: 1px solid rgba(0, 243, 255, 0.2); padding-bottom: 10px;
-        }
-        .modal-body { color: #c8e0ff; line-height: 1.7; font-size: 1.05rem; margin-bottom: 30px; }
-        
-        .modal-body img, .modal-body iframe, .modal-body video { 
-            max-width: 100%; height: auto; border-radius: 5px; margin: 15px 0; 
-        }
-
-        .cyber-btn {
-            display: inline-block; background: transparent; color: #00f3ff;
-            border: 1px solid #00f3ff; padding: 10px 20px; text-decoration: none;
-            text-transform: uppercase; font-size: 0.9rem; letter-spacing: 1px; transition: all 0.3s;
-        }
-        .cyber-btn:hover { background: #00f3ff; color: #050914; box-shadow: 0 0 15px #00f3ff; }
-        ::-webkit-scrollbar { width: 8px; }
-        ::-webkit-scrollbar-track { background: #050914; }
-        ::-webkit-scrollbar-thumb { background: #00f3ff; border-radius: 4px; }
-    </style>
+    <title>Memoria Caché | Interceptando Datos</title>
+    <!-- Vinculamos la hoja de estilos externa -->
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
+    <!-- Capa de escaneo de monitor antiguo (Efecto Cyberpunk) -->
+    <div class="crt-scanlines"></div>
+
+    <!-- Fondo interactivo -->
     <canvas id="networkCanvas"></canvas>
 
-    <nav>
-        <div class="logo">gabriellopez.es</div>
-        <div class="nav-links">
-            <a href="#">/inicio</a>
-            <a href="#">/data_stream</a>
-            <a href="#">/sistema</a>
-        </div>
-    </nav>
-
+    <!-- Cabecera sin menús, directa al mensaje -->
     <header>
-        <h1>"Tus recuerdos no son tuyos,<br>son solo datos guardados en caché."<span class="cursor"></span></h1>
+        <h1 class="glitch-text" data-text='"Tus recuerdos no son tuyos, son solo datos guardados en caché."'>
+            "Tus recuerdos no son tuyos,<br>son solo datos guardados en caché."<span class="cursor"></span>
+        </h1>
     </header>
 
     <main>
-        <div id="loader">Intentando vulnerar protocolos RSS..._</div>
+        <!-- Consola de estado -->
+        <div id="terminal-loader">
+            <span id="loader-text">[sys.boot] Iniciando protocolo de intercepción de señales...</span>
+            <div class="progress-bar"><div class="progress" id="loading-bar"></div></div>
+        </div>
+        
+        <!-- Cuadrícula de tarjetas -->
         <div class="garden-grid" id="jardinDigital"></div>
     </main>
 
+    <!-- VENTANA EMERGENTE (MODAL) -->
     <div id="noteModal" class="modal-overlay">
         <div class="modal-content">
             <button class="close-btn" id="closeModal">&times;</button>
@@ -161,207 +44,7 @@
         </div>
     </div>
 
-    <script>
-        // --- 1. MOTOR GRÁFICO (FONDO ANIMADO) ---
-        const canvas = document.getElementById('networkCanvas');
-        const ctx = canvas.getContext('2d');
-        let width, height, particles = [], particleCount, connectionDistance;
-        const mouse = { x: null, y: null, radius: 150 };
-
-        window.addEventListener('mousemove', (e) => { mouse.x = e.clientX; mouse.y = e.clientY; });
-        window.addEventListener('touchmove', (e) => { mouse.x = e.touches[0].clientX; mouse.y = e.touches[0].clientY; });
-        window.addEventListener('mouseleave', () => { mouse.x = null; mouse.y = null; });
-        window.addEventListener('touchend', () => { mouse.x = null; mouse.y = null; });
-
-        function resize() {
-            width = canvas.width = window.innerWidth; height = canvas.height = window.innerHeight;
-            particleCount = Math.floor((width * height) / 9000); 
-            connectionDistance = width < 768 ? 90 : 130;
-            initParticles();
-        }
-        window.addEventListener('resize', resize);
-
-        class Particle {
-            constructor() {
-                this.x = Math.random() * width; this.y = Math.random() * height;
-                this.size = Math.random() * 2 + 0.5; this.angle = Math.random() * Math.PI * 2;
-                this.velocity = Math.random() * 0.4 + 0.1; this.angularVelocity = (Math.random() - 0.5) * 0.02;
-                this.z = Math.random();
-            }
-            update() {
-                this.angle += this.angularVelocity;
-                this.x += Math.cos(this.angle) * this.velocity; this.y += Math.sin(this.angle) * this.velocity;
-                if (this.x < -50) this.x = width + 50; if (this.x > width + 50) this.x = -50;
-                if (this.y < -50) this.y = height + 50; if (this.y > height + 50) this.y = -50;
-                if (mouse.x != null) {
-                    let dx = mouse.x - this.x, dy = mouse.y - this.y, dist = Math.sqrt(dx * dx + dy * dy);
-                    if (dist < mouse.radius) {
-                        const force = (mouse.radius - dist) / mouse.radius;
-                        this.x -= (dx / dist) * force * 1.5; this.y -= (dy / dist) * force * 1.5;
-                    }
-                }
-            }
-            draw() {
-                ctx.beginPath(); ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
-                ctx.fillStyle = `rgba(0, 243, 255, ${0.1 + (this.z * 0.4)})`; ctx.fill();
-            }
-        }
-
-        function initParticles() { particles = []; for (let i = 0; i < particleCount; i++) particles.push(new Particle()); }
-
-        function drawConnections() {
-            for (let i = 0; i < particles.length; i++) {
-                for (let j = i + 1; j < particles.length; j++) {
-                    let dx = particles[i].x - particles[j].x, dy = particles[i].y - particles[j].y;
-                    let dist = Math.sqrt(dx * dx + dy * dy);
-                    if (dist < connectionDistance) {
-                        let mouseEnhance = 0;
-                        if (mouse.x != null) {
-                            let mDx = mouse.x - (particles[i].x + particles[j].x) / 2;
-                            let mDy = mouse.y - (particles[i].y + particles[j].y) / 2;
-                            let mDist = Math.sqrt(mDx * mDx + mDy * mDy);
-                            if (mDist < mouse.radius) mouseEnhance = 1 - (mDist / mouse.radius);
-                        }
-                        let opacity = (1 - (dist / connectionDistance)) * (0.15 + mouseEnhance * 0.4);
-                        let gradient = ctx.createLinearGradient(particles[i].x, particles[i].y, particles[j].x, particles[j].y);
-                        gradient.addColorStop(0, `rgba(0, 243, 255, ${opacity})`);
-                        gradient.addColorStop(1, `rgba(138, 43, 226, ${opacity * 0.4})`);
-                        ctx.beginPath(); ctx.strokeStyle = gradient; ctx.lineWidth = 1 + (mouseEnhance * 1.5);
-                        ctx.moveTo(particles[i].x, particles[i].y); ctx.lineTo(particles[j].x, particles[j].y); ctx.stroke();
-                    }
-                }
-            }
-        }
-
-        function animate() {
-            ctx.clearRect(0, 0, width, height);
-            for (let i = 0; i < particles.length; i++) { particles[i].update(); particles[i].draw(); }
-            drawConnections(); requestAnimationFrame(animate);
-        }
-
-        resize(); animate();
-
-        // --- 2. SISTEMA DE DATOS AUTÓNOMO Y ANTIFALLOS ---
-        const modal = document.getElementById('noteModal');
-        const closeModalBtn = document.getElementById('closeModal');
-        window.articulosData = [];
-
-        closeModalBtn.addEventListener('click', () => modal.classList.remove('active'));
-        modal.addEventListener('click', (e) => { if (e.target === modal) modal.classList.remove('active'); });
-
-        function abrirArticulo(index) {
-            const articulo = window.articulosData[index];
-            document.getElementById('modalTitle').innerText = articulo.titulo;
-            document.getElementById('modalMeta').innerText = `[ORIGEN: ${articulo.origen}] | FECHA: ${articulo.fecha}`;
-            document.getElementById('modalBody').innerHTML = articulo.contenidoCompleto;
-            
-            const btnLink = document.getElementById('modalLink');
-            if(articulo.link !== "#") {
-                btnLink.style.display = "inline-block";
-                btnLink.href = articulo.link;
-            } else {
-                btnLink.style.display = "none";
-            }
-            modal.classList.add('active');
-        }
-
-        // Función que pinta las tarjetas en pantalla
-        function renderizarTarjetas() {
-            const grid = document.getElementById('jardinDigital');
-            grid.innerHTML = ''; // Limpiar antes de pintar
-            window.articulosData.forEach((articulo, index) => {
-                const tarjetaHTML = `
-                    <article class="node-card" onclick="abrirArticulo(${index})">
-                        <div class="node-meta">
-                            <span class="tech-tag">/data_stream</span>
-                            <span>${articulo.fecha}</span>
-                        </div>
-                        <h2 class="node-title">${articulo.titulo}</h2>
-                        <p class="node-content">${articulo.resumen}</p>
-                    </article>
-                `;
-                grid.innerHTML += tarjetaHTML;
-            });
-        }
-
-        async function cargarRSSAutomático() {
-            const loader = document.getElementById('loader');
-            
-            try {
-                // Usamos la API pública de RSS a JSON apuntando a Microsiervos (Feed Abierto, sin Cloudflare)
-                const rssUrl = encodeURIComponent('https://www.microsiervos.com/index.xml');
-                const apiUrl = `https://api.rss2json.com/v1/api.json?rss_url=${rssUrl}`;
-                
-                const respuesta = await fetch(apiUrl);
-                const data = await respuesta.json();
-
-                if (data.status !== 'ok' || !data.items || data.items.length === 0) {
-                    throw new Error('Bloqueo del servidor o feed vacío.');
-                }
-
-                loader.style.display = 'none';
-
-                // Procesamos los datos reales
-                window.articulosData = data.items.map(item => {
-                    let divTemporal = document.createElement("div");
-                    divTemporal.innerHTML = item.description || item.content || "";
-                    let textoLimpio = divTemporal.textContent || divTemporal.innerText || "";
-                    
-                    return {
-                        titulo: item.title,
-                        fecha: item.pubDate.split(' ')[0],
-                        link: item.link,
-                        origen: "EXTERNO",
-                        resumen: textoLimpio.substring(0, 130) + "...",
-                        contenidoCompleto: item.content || item.description
-                    };
-                });
-
-                renderizarTarjetas();
-
-            } catch (error) {
-                console.warn("Fallo de Inyección RSS, activando protocolo de emergencia...");
-                
-                // Si la web externa nos bloquea, mostramos este mensaje chulo:
-                loader.innerText = "ALERTA: Firewall detectado. Cargando caché de emergencia del sistema local...";
-                loader.classList.add('warning-text');
-
-                // Simulamos un pequeño retraso de hackeo y cargamos TUS datos estáticos de respaldo
-                setTimeout(() => {
-                    loader.style.display = 'none';
-                    window.articulosData = [
-                        {
-                            titulo: "La ilusión del libre albedrío en algoritmos predictivos",
-                            fecha: "2026-07-09",
-                            origen: "MEMORIA_LOCAL",
-                            link: "#",
-                            resumen: "Nuestras decisiones en la red están siendo perfiladas constantemente. ¿Elegiste hacer clic o el algoritmo te guió a ello?",
-                            contenidoCompleto: "<p>Cuando un sistema computacional es capaz de predecir tus acciones con un 99% de precisión, la frontera entre tu propia decisión y la sugestión de la máquina se rompe.</p><br><p>Vivimos en una época donde las redes neuronales conocen nuestros miedos, deseos y rutinas mejor que nosotros mismos. La próxima vez que sientas que descubriste algo nuevo en internet de forma casual, recuerda: ese encuentro estuvo matemáticamente calculado milisegundos antes de que ocurriera.</p>"
-                        },
-                        {
-                            titulo: "El protocolo del Olvido Digital",
-                            fecha: "2026-07-08",
-                            origen: "MEMORIA_LOCAL",
-                            link: "#",
-                            resumen: "El derecho a desaparecer de la red se ha convertido en el privilegio más caro del siglo XXI.",
-                            contenidoCompleto: "<p>En los inicios de internet, el anonimato era la norma. Hoy es una rareza. Cada registro, cada IP conectada a un servidor, crea una sombra digital que nos persigue.</p><br><p>Los 'borradores de identidad' serán la profesión más demandada de la próxima década. Hackers éticos dedicados exclusivamente a inyectar ruido en bases de datos para confundir a los perfiladores algorítmicos y devolverle a la gente su derecho fundamental a ser olvidada.</p>"
-                        },
-                        {
-                            titulo: "Sistemas Descentralizados y la Resistencia",
-                            fecha: "2026-07-07",
-                            origen: "MEMORIA_LOCAL",
-                            link: "#",
-                            resumen: "Si un nodo cae, la red sobrevive. La topología p2p es la única estructura capaz de soportar la censura global.",
-                            contenidoCompleto: "<p>Almacenar la información en servidores centrales es poner un único punto de fallo (SPOF) en la arquitectura de la humanidad.</p><br><p>La adopción de tecnologías como IPFS (InterPlanetary File System) asegura que la información fluya como el agua: si bloqueas un canal, simplemente buscará otra ruta a través de los nodos. Tus recuerdos no son tuyos, pero mientras estén distribuidos, nadie podrá borrarlos.</p>"
-                        }
-                    ];
-                    renderizarTarjetas();
-                }, 2000);
-            }
-        }
-
-        cargarRSSAutomático();
-
-    </script>
+    <!-- Vinculamos el archivo JavaScript externo -->
+    <script src="app.js" defer></script>
 </body>
 </html>
