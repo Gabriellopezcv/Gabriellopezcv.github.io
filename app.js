@@ -160,7 +160,7 @@ setTimeout(() => {
 }, 2500);
 
 // ==========================================
-// 4. MOTOR NATIVO DE EXTRACCIÓN (SIN API KEYS)
+// 4. MOTOR NATIVO DE EXTRACCIÓN (ALLORIGINS PROXY)
 // ==========================================
 const modal = document.getElementById('noteModal');
 const closeModalBtn = document.getElementById('closeModal');
@@ -174,16 +174,29 @@ window.abrirArticulo = function(index) {
     document.getElementById('modalTitle').innerText = articulo.titulo;
     document.getElementById('modalMeta').innerText = `[ORIGEN: ${articulo.origen}] | SYS.DATE: ${articulo.fecha}`;
     
-    // Insertamos el texto limpio, sin alertas
-    document.getElementById('modalBody').innerHTML = articulo.contenidoCompleto;
+    // Mostramos el contenido que hayamos logrado extraer
+    let htmlContent = articulo.contenidoCompleto;
     
+    // Mensaje sutil indicando si la información fue recortada por la fuente original
+    if (htmlContent.length < 500) {
+        htmlContent += `
+        <br><br>
+        <div style="border-left: 3px solid #00f3ff; padding-left: 15px; margin-top: 20px; color: #8c9bb0; font-size: 0.9em; font-family: 'Share Tech Mono', monospace;">
+            [SYS.INFO]: <em>El proveedor de este nodo restringe la lectura completa a través de canales externos. Acceda al enlace original.</em>
+        </div>`;
+    }
+    
+    document.getElementById('modalBody').innerHTML = htmlContent;
+    
+    // Controlamos el botón de enlace original, SIEMPRE visible si hay link
     const btnLink = document.getElementById('modalLink');
-    if(articulo.link !== "#") {
+    if(articulo.link && articulo.link !== "#") {
         btnLink.style.display = "inline-block";
         btnLink.href = articulo.link;
     } else {
         btnLink.style.display = "none";
     }
+    
     modal.classList.add('active');
 }
 
@@ -234,17 +247,15 @@ matrixPromptEl.addEventListener('click', () => {
     });
 });
 
-// Función nativa para leer RSS usando un proxy libre (sin claves API)
+// Función nativa robusta que NO usa rss2json, usa AllOrigins Proxy y parsea el XML a mano
 async function fetchNativeRSS(url, sourceId) {
     try {
-        // AllOrigins actúa como un puente para evitar bloqueos del navegador
         const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(url)}`;
         const response = await fetch(proxyUrl);
-        if (!response.ok) throw new Error("Fallo en red");
+        if (!response.ok) throw new Error("Fallo de Proxy");
         
         const data = await response.json();
         
-        // Convertimos el texto de internet a un formato que Javascript entienda
         const parser = new DOMParser();
         const xml = parser.parseFromString(data.contents, "text/xml");
         const items = Array.from(xml.querySelectorAll("item"));
@@ -254,18 +265,22 @@ async function fetchNativeRSS(url, sourceId) {
             const link = item.querySelector("link")?.textContent || "#";
             const fechaRaw = item.querySelector("pubDate")?.textContent || "";
             
-            // Extraer fecha limpia
             let fecha = "SYS.DATE";
             if (fechaRaw) {
                 const dateObj = new Date(fechaRaw);
                 if (!isNaN(dateObj)) fecha = dateObj.toISOString().split('T')[0];
             }
 
-            // Buscar el texto. Algunas webs lo meten en <content:encoded>, otras en <description>
-            const encoded = item.getElementsByTagNameNS("*", "encoded");
-            let contenidoHtml = encoded.length > 0 ? encoded[0].textContent : (item.querySelector("description")?.textContent || "");
+            // Las fuentes serias usan etiquetas variadas para el contenido largo.
+            const contentEncoded = item.getElementsByTagNameNS("*", "encoded");
+            let contenidoHtml = "";
+            if (contentEncoded.length > 0) {
+                contenidoHtml = contentEncoded[0].textContent;
+            } else {
+                contenidoHtml = item.querySelector("description")?.textContent || "";
+            }
 
-            // Crear un resumen limpio sin HTML
+            // Limpiamos el texto para el resumen corto de la tarjeta
             let tempDiv = document.createElement("div");
             tempDiv.innerHTML = contenidoHtml;
             let resumenLimpio = tempDiv.textContent || tempDiv.innerText || "";
@@ -280,8 +295,8 @@ async function fetchNativeRSS(url, sourceId) {
             };
         });
     } catch (error) {
-        console.warn(`[SYS.WARN] No se pudo acceder a ${sourceId}. Saltando nodo.`);
-        return []; // Si una web falla, simplemente devolvemos vacío para esa web y continuamos
+        console.warn(`[SYS.WARN] Bloqueo detectado en ${sourceId}.`);
+        return [];
     }
 }
 
@@ -289,35 +304,34 @@ async function cazarSeñalesGlobales() {
     const loaderText = document.getElementById('loader-text');
     const loadingBar = document.getElementById('loading-bar');
     
-    // Nuestras fuentes avanzadas
     const fuentes = [
         { url: 'https://phys.org/rss-feed/physics-news/', id: '/PHYS.ORG_QUANTUM' },
         { url: 'https://singularityhub.com/feed/', id: '/SINGULARITY_HUB' },
         { url: 'https://www.technologyreview.com/feed/', id: '/MIT_TECH_REVIEW' },
-        { url: 'https://feeds.feedburner.com/ScienceDaily/matter_energy/quantum_physics', id: '/SCIENCE_DAILY' },
-        { url: 'https://aeon.co/feed.rss', id: '/AEON_PHILOSOPHY' } 
+        { url: 'https://aeon.co/feed.rss', id: '/AEON_PHILOSOPHY' },
+        { url: 'https://www.sciencenews.org/feed', id: '/SCIENCE_NEWS'}
     ];
 
     try {
         loadingBar.style.width = '30%';
-        loaderText.innerText = "[sys.log] Estableciendo túneles seguros. Por favor espere...";
+        loaderText.innerText = "[sys.log] Estableciendo túneles de intercepción nativos...";
 
-        // Ejecutamos todas las descargas a la vez
+        // Ejecutamos las descargas de forma asíncrona
         const promesas = fuentes.map(fuente => fetchNativeRSS(fuente.url, fuente.id));
         const arraysDeNoticias = await Promise.all(promesas);
 
         loadingBar.style.width = '80%';
         loaderText.innerText = "[sys.log] Teorías interceptadas. Compilando en matriz local...";
 
-        // Juntamos todos los resultados válidos en una sola bolsa
+        // Agrupamos
         arraysDeNoticias.forEach(array => {
             if (array && array.length > 0) {
                 masterDataPool = masterDataPool.concat(array);
             }
         });
 
-        // Si realmente no hay internet o todas fallaron
-        if (masterDataPool.length < 5) throw new Error('Corte de conexión global');
+        // Solo saltará a la copia de seguridad si TODAS las webs han fallado a la vez
+        if (masterDataPool.length < 5) throw new Error('Corte global');
 
         loadingBar.style.width = '100%';
         setTimeout(() => {
@@ -326,8 +340,7 @@ async function cazarSeñalesGlobales() {
         }, 800);
 
     } catch (error) {
-        // Este bloque ahora solo se ejecutará en casos de fallo extremo de internet
-        loaderText.innerText = "[ALERTA] Interferencia de red masiva. Desplegando archivo local de seguridad...";
+        loaderText.innerText = "[ALERTA] Protocolos externos bloqueados. Desplegando archivo seguro...";
         loadingBar.style.background = '#ff003c';
         
         setTimeout(() => {
@@ -341,7 +354,7 @@ async function cazarSeñalesGlobales() {
 function generarArchivoRespaldo() {
     const ciencia = [
         { t: "Físicos demuestran que el universo podría ser una red neuronal gigantesca", c: "Un nuevo estudio sugiere que la estructura del cosmos a nivel macroscópico imita de forma asombrosa las conexiones sinápticas de una IA generativa." },
-        { t: "Entrelazamiento cuántico logrado a temperatura ambiente", c: "La transferencia de información instantánea sin límite de distancia ya es teóricamente posible según el laboratorio de Copenhague. Esto podría revolucionar no solo las telecomunicaciones." },
+        { t: "Entrelazamiento cuántico logrado a temperatura ambiente", c: "La transferencia de información instantánea sin límite de distancia ya es teóricamente posible según el laboratorio de Copenhague." },
         { t: "Anomalía en el fondo cósmico de microondas", c: "Investigadores detectan un patrón repetitivo en el eco del Big Bang que coincide con los esquemas de corrección de errores informáticos. ¿Es el universo un holograma?" },
         { t: "La Conciencia Artificial emerge en un modelo de lenguaje de 10 Trillones de parámetros", c: "Filósofos e ingenieros debaten tras la primera entrevista donde un sistema solicitó derechos legales y demostró miedo a ser desconectado." }
     ];
