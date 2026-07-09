@@ -3,46 +3,57 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Memoria Caché | Interceptando Datos</title>
+    <title>SISTEMA.CERO | Intercepción</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-    <!-- Capa de escaneo de monitor antiguo -->
+    <!-- Escaneo de monitor y viñeta oscura -->
     <div class="crt-scanlines"></div>
+    <div class="vignette"></div>
 
     <!-- Fondo interactivo -->
     <canvas id="networkCanvas"></canvas>
 
-    <!-- Cabecera con el nuevo lema inquietante -->
     <header>
-        <h1 class="glitch-text" data-text='"No eres el usuario. Eres el conjunto de datos de entrenamiento."'>
-            "No eres el usuario.<br>Eres el conjunto de datos de entrenamiento."<span class="cursor"></span>
-        </h1>
+        <!-- El texto ahora se decodifica por JavaScript -->
+        <h1 id="motto" class="decrypter-text"></h1>
     </header>
 
     <main>
         <div id="terminal-loader">
-            <span id="loader-text">[sys.boot] Iniciando protocolo de intercepción de señales...</span>
+            <span id="loader-text">[sys.boot] Escaneando anomalías en el tejido de la realidad...</span>
             <div class="progress-bar"><div class="progress" id="loading-bar"></div></div>
         </div>
         
         <div class="garden-grid" id="jardinDigital"></div>
     </main>
 
-    <!-- Nuevo pie de página (Footer) -->
     <footer>
-        [ © 2026 ] // GABRIEL LOPEZ // ALL SYSTEM RIGHTS RESERVED. // END_OF_LINE_
+        [ © 2026 ] // GABRIEL LOPEZ // REALITY IS A CONSENSUS HALLUCINATION // END_OF_LINE_
     </footer>
 
-    <!-- VENTANA EMERGENTE (MODAL) -->
+    <!-- BOTÓN CONEJO BLANCO -->
+    <button id="rabbit-btn" title="Sigue al conejo blanco...">🐇</button>
+
+    <!-- VENTANA EMERGENTE (MODAL LECTOR PROFUNDO) -->
     <div id="noteModal" class="modal-overlay">
         <div class="modal-content">
-            <button class="close-btn" id="closeModal">&times;</button>
+            <div class="modal-header">
+                <span class="modal-classification">[ CLASIFICACIÓN: ALTO SECRETO ]</span>
+                <button class="close-btn" id="closeModal">&times;</button>
+            </div>
             <h2 id="modalTitle" class="modal-title"></h2>
             <div class="modal-meta" id="modalMeta"></div>
-            <div class="modal-body" id="modalBody"></div>
-            <a href="#" id="modalLink" class="cyber-btn" target="_blank">Acceder al nodo original &rarr;</a>
+            
+            <div class="modal-body" id="modalBody">
+                <!-- Aquí se inyecta el contenido largo -->
+            </div>
+            
+            <!-- Ahora el enlace al origen es un detalle al final, no el botón principal -->
+            <div class="modal-footer">
+                <a href="#" id="modalLink" target="_blank">[Verificar origen de la transmisión]</a>
+            </div>
         </div>
     </div>
 
