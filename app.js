@@ -1,365 +1,234 @@
 // ==========================================
-// 1. MOTOR GRÁFICO (RED NEURONAL DE FONDO)
+// 1. BASE DE DATOS DEL SISTEMA (TUS DATOS PERSONALES)
 // ==========================================
-const canvas = document.getElementById('networkCanvas');
+// Aquí es donde tú editas tu web. Todo está en este archivo. Cambia los textos por los tuyos.
+
+const systemData = {
+    "inicio": `
+        <h2>> INICIALIZANDO SECUENCIA_</h2>
+        <p>Bienvenido al Sistema.Cero. La realidad es una alucinación consensuada, pero los datos aquí contenidos son absolutos.</p>
+        <p>Este nodo funciona como un repositorio central de archivos, proyectos e interceptaciones. Seleccione una ruta en el menú superior para acceder a los bloques de memoria asignados.</p>
+        <br>
+        <h3 style="color: #ff003c;">[ ADVERTENCIA ]</h3>
+        <p>Tus recuerdos no son tuyos, son solo datos guardados en caché. Procede con precaución por la red.</p>
+    `,
+    "habilidades": `
+        <h2>> EXTRACCIÓN DE ESPECIFICACIONES TÉCNICAS_</h2>
+        <p>Escaneo de capacidades del host completado. Nivel de autorización: ACEPTADO.</p>
+        
+        <div class="data-grid">
+            <div class="data-card">
+                <h3 style="color: #00f3ff;">[ FRONT-END / INTERFAZ ]</h3>
+                <p>Dominio avanzado en manipulación del DOM, estructuración semántica y arquitecturas visuales.</p>
+                <p>> HTML5, CSS3, SCSS</p>
+                <p>> JavaScript (ES6+)</p>
+                <p>> React / Vue.js</p>
+            </div>
+            <div class="data-card">
+                <h3 style="color: #00f3ff;">[ BACK-END / NÚCLEO ]</h3>
+                <p>Construcción de servidores resilientes y gestión de bases de datos relacionales/no relacionales.</p>
+                <p>> Node.js / Express</p>
+                <p>> Python / Django</p>
+                <p>> MongoDB, PostgreSQL</p>
+            </div>
+            <div class="data-card">
+                <h3 style="color: #00f3ff;">[ SEGURIDAD / REDES ]</h3>
+                <p>Protocolos de encriptación y análisis de vulnerabilidades del sistema central.</p>
+                <p>> Penetration Testing Básico</p>
+                <p>> Criptografía</p>
+                <p>> Arquitectura en la Nube (AWS/Azure)</p>
+            </div>
+        </div>
+    `,
+    "archivos": `
+        <h2>> ACCEDIENDO AL ARCHIVO DE PROYECTOS CLASIFICADOS_</h2>
+        <p>Los siguientes desarrollos han sido desclasificados para revisión pública:</p>
+        
+        <div class="data-grid">
+            <div class="data-card">
+                <h3>[ PROYECTO: NEURONAL_NET ]</h3>
+                <p><strong>Estado:</strong> Completado</p>
+                <p>Simulador interactivo de conexiones sinápticas usando Canvas HTML5 y algoritmos físicos de repulsión.</p>
+                <a href="#" style="color:#00f3ff; text-decoration:none;">> Ejecutar simulador</a>
+            </div>
+            <div class="data-card">
+                <h3>[ PROYECTO: DATA_CRAWLER ]</h3>
+                <p><strong>Estado:</strong> En progreso</p>
+                <p>Bot automatizado en Python para extracción y filtrado de grandes volúmenes de datos en la Dark Web.</p>
+                <a href="#" style="color:#00f3ff; text-decoration:none;">> Ver repositorio</a>
+            </div>
+            <div class="data-card">
+                <h3>[ PROYECTO: SECURE_VAULT ]</h3>
+                <p><strong>Estado:</strong> Beta</p>
+                <p>Aplicación de mensajería encriptada peer-to-peer con autodestrucción de paquetes basada en tiempo.</p>
+                <a href="#" style="color:#00f3ff; text-decoration:none;">> Acceder a la Beta</a>
+            </div>
+        </div>
+    `,
+    "contacto": `
+        <h2>> ESTABLECER ENLACE DE COMUNICACIÓN_</h2>
+        <p>Si deseas abrir un canal encriptado directo con el administrador de este nodo, utiliza las siguientes coordenadas:</p>
+        <br>
+        <p><strong style="color: #00ff41;">> EMAIL:</strong> contacto@gabriellopez.es</p>
+        <p><strong style="color: #00ff41;">> GITHUB:</strong> github.com/TuUsuario</p>
+        <p><strong style="color: #00ff41;">> SEÑAL_LOCAL:</strong> Guadalajara, Sistema Terrestre</p>
+        <br><br>
+        <div style="border: 1px dashed #ff003c; padding: 15px;">
+            <p style="color: #ff003c;">[ TERMINAL DE TRANSMISIÓN DIRECTA: EN MANTENIMIENTO. POR FAVOR USE RUTAS CONVENCIONALES ]</p>
+        </div>
+    `
+};
+
+// ==========================================
+// 2. LÓGICA DE LA INTERFAZ Y NAVEGACIÓN
+// ==========================================
+const screenContent = document.getElementById('content-screen');
+const navButtons = document.querySelectorAll('.cyber-btn');
+let isTyping = false;
+
+// Efecto máquina de escribir (Terminal)
+function typeWriter(html, element, speed = 5) {
+    if(isTyping) return;
+    isTyping = true;
+    element.innerHTML = '';
+    
+    // Para escribir HTML rápidamente sin romper etiquetas, lo insertamos directamente 
+    // pero con un efecto visual de "glitch" en la opacidad
+    element.style.opacity = 0;
+    element.innerHTML = html;
+    
+    let opacity = 0;
+    const fade = setInterval(() => {
+        opacity += 0.1;
+        element.style.opacity = opacity;
+        if(opacity >= 1) {
+            clearInterval(fade);
+            isTyping = false;
+        }
+    }, 30);
+}
+
+// Cambiar de sección al hacer clic
+navButtons.forEach(btn => {
+    btn.addEventListener('click', (e) => {
+        if(isTyping) return; // Evita clics múltiples rápidos
+        
+        // Actualizar botones
+        navButtons.forEach(b => b.classList.remove('active'));
+        e.currentTarget.classList.add('active');
+
+        // Cargar contenido
+        const target = e.currentTarget.getAttribute('data-target');
+        const dataToLoad = systemData[target] || "<p>ERROR 404: ARCHIVO NO ENCONTRADO</p>";
+        
+        typeWriter(dataToLoad, screenContent);
+    });
+});
+
+// ==========================================
+// 3. SECUENCIA DE ARRANQUE (BOOT)
+// ==========================================
+window.addEventListener('load', () => {
+    const bootScreen = document.getElementById('boot-screen');
+    const progressBar = document.getElementById('boot-progress');
+    const hud = document.getElementById('hud-interface');
+    const footer = document.getElementById('hud-footer');
+
+    let width = 0;
+    const bootInterval = setInterval(() => {
+        width += Math.random() * 15;
+        if(width >= 100) {
+            width = 100;
+            progressBar.style.width = width + '%';
+            clearInterval(bootInterval);
+            
+            setTimeout(() => {
+                bootScreen.classList.add('hidden');
+                setTimeout(() => {
+                    hud.classList.remove('hidden');
+                    footer.classList.remove('hidden');
+                    // Cargar la página de inicio por defecto
+                    typeWriter(systemData["inicio"], screenContent);
+                }, 500);
+            }, 500);
+        } else {
+            progressBar.style.width = width + '%';
+        }
+    }, 150);
+});
+
+// ==========================================
+// 4. MOTOR GRÁFICO (RED NEURONAL DE FONDO)
+// ==========================================
+const canvas = document.getElementById('cyber-canvas');
 const ctx = canvas.getContext('2d');
-let width, height, particles = [], particleCount, connectionDistance;
+let cw, ch, particles = [];
 const mouse = { x: null, y: null, radius: 150 };
 
 window.addEventListener('mousemove', (e) => { mouse.x = e.clientX; mouse.y = e.clientY; });
-window.addEventListener('touchmove', (e) => { mouse.x = e.touches[0].clientX; mouse.y = e.touches[0].clientY; });
 window.addEventListener('mouseleave', () => { mouse.x = null; mouse.y = null; });
+window.addEventListener('resize', resizeCanvas);
 
-function resize() {
-    width = canvas.width = window.innerWidth; height = canvas.height = window.innerHeight;
-    particleCount = Math.floor((width * height) / 10000); 
-    connectionDistance = width < 768 ? 90 : 130;
+function resizeCanvas() {
+    cw = canvas.width = window.innerWidth; 
+    ch = canvas.height = window.innerHeight;
     initParticles();
 }
-window.addEventListener('resize', resize);
 
 class Particle {
     constructor() {
-        this.x = Math.random() * width; this.y = Math.random() * height;
-        this.size = Math.random() * 2 + 0.5; this.angle = Math.random() * Math.PI * 2;
+        this.x = Math.random() * cw; this.y = Math.random() * ch;
+        this.size = Math.random() * 1.5 + 0.5; this.angle = Math.random() * Math.PI * 2;
         this.velocity = Math.random() * 0.2 + 0.05; this.angularVelocity = (Math.random() - 0.5) * 0.01;
-        this.z = Math.random();
     }
     update() {
         this.angle += this.angularVelocity;
         this.x += Math.cos(this.angle) * this.velocity; this.y += Math.sin(this.angle) * this.velocity;
-        if (this.x < -50) this.x = width + 50; if (this.x > width + 50) this.x = -50;
-        if (this.y < -50) this.y = height + 50; if (this.y > height + 50) this.y = -50;
         
+        if (this.x < -50) this.x = cw + 50; if (this.x > cw + 50) this.x = -50;
+        if (this.y < -50) this.y = ch + 50; if (this.y > ch + 50) this.y = -50;
+        
+        // Repulsión del ratón
         if (mouse.x != null) {
-            let dx = mouse.x - this.x, dy = mouse.y - this.y, dist = Math.sqrt(dx * dx + dy * dy);
+            let dx = mouse.x - this.x, dy = mouse.y - this.y;
+            let dist = Math.sqrt(dx * dx + dy * dy);
             if (dist < mouse.radius) {
                 const force = (mouse.radius - dist) / mouse.radius;
-                this.x -= (dx / dist) * force * 1.5; this.y -= (dy / dist) * force * 1.5;
+                this.x -= (dx / dist) * force; this.y -= (dy / dist) * force;
             }
         }
     }
     draw() {
         ctx.beginPath(); ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
-        ctx.fillStyle = `rgba(0, 243, 255, ${0.1 + (this.z * 0.3)})`; ctx.fill();
+        ctx.fillStyle = `rgba(0, 243, 255, 0.3)`; ctx.fill();
     }
 }
 
-function initParticles() { particles = []; for (let i = 0; i < particleCount; i++) particles.push(new Particle()); }
+function initParticles() {
+    particles = [];
+    let count = Math.floor((cw * ch) / 12000); // Densidad equilibrada
+    for (let i = 0; i < count; i++) particles.push(new Particle());
+}
 
-function drawConnections() {
+function animateCanvas() {
+    ctx.clearRect(0, 0, cw, ch);
     for (let i = 0; i < particles.length; i++) {
+        particles[i].update(); particles[i].draw();
+        
+        // Conexiones
         for (let j = i + 1; j < particles.length; j++) {
             let dx = particles[i].x - particles[j].x, dy = particles[i].y - particles[j].y;
             let dist = Math.sqrt(dx * dx + dy * dy);
-            if (dist < connectionDistance) {
-                let opacity = (1 - (dist / connectionDistance)) * 0.15;
-                ctx.beginPath(); ctx.strokeStyle = `rgba(0, 243, 255, ${opacity})`; 
+            if (dist < 120) {
+                ctx.beginPath(); 
+                ctx.strokeStyle = `rgba(0, 243, 255, ${0.15 - (dist/120)*0.15})`; 
                 ctx.lineWidth = 1;
                 ctx.moveTo(particles[i].x, particles[i].y); ctx.lineTo(particles[j].x, particles[j].y); ctx.stroke();
             }
         }
     }
+    requestAnimationFrame(animateCanvas);
 }
 
-function animate() {
-    ctx.clearRect(0, 0, width, height);
-    for (let i = 0; i < particles.length; i++) { particles[i].update(); particles[i].draw(); }
-    drawConnections(); requestAnimationFrame(animate);
-}
-
-resize(); animate();
-
-// ==========================================
-// 2. EFECTO DE DESENCRIPTADO DEL TEXTO
-// ==========================================
-class TextScramble {
-    constructor(el) {
-        this.el = el;
-        this.chars = '!<>-_\\/[]{}—=+*^?#________';
-        this.update = this.update.bind(this);
-    }
-    setText(newText) {
-        const oldText = this.el.innerText;
-        const length = Math.max(oldText.length, newText.length);
-        const promise = new Promise((resolve) => this.resolve = resolve);
-        this.queue = [];
-        for (let i = 0; i < length; i++) {
-            const from = oldText[i] || '';
-            const to = newText[i] || '';
-            const start = Math.floor(Math.random() * 40);
-            const end = start + Math.floor(Math.random() * 40);
-            this.queue.push({ from, to, start, end });
-        }
-        cancelAnimationFrame(this.frameRequest);
-        this.frame = 0;
-        this.update();
-        return promise;
-    }
-    update() {
-        let output = '';
-        let complete = 0;
-        for (let i = 0, n = this.queue.length; i < n; i++) {
-            let { from, to, start, end, char } = this.queue[i];
-            if (this.frame >= end) {
-                complete++;
-                output += to;
-            } else if (this.frame >= start) {
-                if (!char || Math.random() < 0.28) {
-                    char = this.randomChar();
-                    this.queue[i].char = char;
-                }
-                output += `<span style="color:#00f3ff;">${char}</span>`;
-            } else {
-                output += from;
-            }
-        }
-        this.el.innerHTML = output;
-        if (complete === this.queue.length) { this.resolve(); } 
-        else {
-            this.frameRequest = requestAnimationFrame(this.update);
-            this.frame++;
-        }
-    }
-    randomChar() { return this.chars[Math.floor(Math.random() * this.chars.length)]; }
-}
-
-const fraseFilosofica = "La materia es una ilusión de la interfaz. La conciencia es la única variable no computable.";
-const decrypter = new TextScramble(document.getElementById('motto'));
-setTimeout(() => { decrypter.setText(fraseFilosofica); }, 500);
-
-// ==========================================
-// 3. ANIMACIÓN TIPO TERMINAL PARA EL PROMPT
-// ==========================================
-const matrixPromptEl = document.getElementById('matrix-prompt');
-let isTyping = false;
-
-function typewriterEffect(text, element, speed = 100, callback) {
-    if(isTyping) return;
-    isTyping = true;
-    element.innerText = '';
-    let i = 0;
-    
-    function type() {
-        if (i < text.length) {
-            element.innerText += text.charAt(i);
-            i++;
-            setTimeout(type, speed + (Math.random() * 50)); 
-        } else {
-            isTyping = false;
-            if(callback) callback();
-        }
-    }
-    type();
-}
-
-const promptText = "> breach the firewall"; 
-
-setTimeout(() => {
-    typewriterEffect(promptText, matrixPromptEl, 80);
-}, 2500);
-
-// ==========================================
-// 4. NUEVO MOTOR DE INTERCEPCIÓN (DOBLE PROXY - SIN LÍMITES)
-// ==========================================
-const modal = document.getElementById('noteModal');
-const closeModalBtn = document.getElementById('closeModal');
-let masterDataPool = []; 
-
-closeModalBtn.addEventListener('click', () => modal.classList.remove('active'));
-modal.addEventListener('click', (e) => { if (e.target === modal) modal.classList.remove('active'); });
-
-window.abrirArticulo = function(index) {
-    const articulo = window.currentViewData[index];
-    document.getElementById('modalTitle').innerText = articulo.titulo;
-    document.getElementById('modalMeta').innerText = `[ORIGEN: ${articulo.origen}] | SYS.DATE: ${articulo.fecha}`;
-    
-    // Contenido real interceptado
-    let htmlContent = articulo.contenidoCompleto;
-    
-    // Si la revista ha capado el texto a menos de 500 caracteres, añadimos el mensaje de aviso elegante
-    if (htmlContent.length < 500) {
-        htmlContent += `
-        <br><br>
-        <div style="border-left: 3px solid #00f3ff; padding-left: 15px; margin-top: 20px; color: #8c9bb0; font-size: 0.9em; font-family: 'Share Tech Mono', monospace;">
-            [SYS.INFO]: <em>El proveedor restringe la lectura remota de este documento. Utilice el enlace inferior para acceder al archivo íntegro en su servidor original.</em>
-        </div>`;
-    }
-    
-    document.getElementById('modalBody').innerHTML = htmlContent;
-    
-    // El botón siempre funciona con la noticia real
-    const btnLink = document.getElementById('modalLink');
-    if(articulo.link && articulo.link !== "#") {
-        btnLink.style.display = "inline-block";
-        btnLink.href = articulo.link;
-    } else {
-        btnLink.style.display = "none";
-    }
-    
-    modal.classList.add('active');
-}
-
-function shuffleArray(array) {
-    for (let i = array.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [array[i], array[j]] = [array[j], array[i]];
-    }
-    return array;
-}
-
-function renderizarSetAleatorio() {
-    const grid = document.getElementById('jardinDigital');
-    
-    shuffleArray(masterDataPool);
-    window.currentViewData = masterDataPool.slice(0, 15);
-    
-    grid.innerHTML = ''; 
-    window.currentViewData.forEach((articulo, index) => {
-        const tarjetaHTML = `
-            <article class="node-card" onclick="abrirArticulo(${index})">
-                <div class="node-meta">
-                    <span class="tech-tag">${articulo.origen}</span>
-                    <span>${articulo.fecha}</span>
-                </div>
-                <h2 class="node-title">${articulo.titulo}</h2>
-                <p class="node-content">${articulo.resumen}</p>
-            </article>
-        `;
-        grid.innerHTML += tarjetaHTML;
-    });
-}
-
-matrixPromptEl.addEventListener('click', () => {
-    if(isTyping || masterDataPool.length === 0) return; 
-    
-    const grid = document.getElementById('jardinDigital');
-    grid.classList.add('glitching');
-    
-    decrypter.setText("Bypassing security protocols...");
-    typewriterEffect("> injecting payload...", matrixPromptEl, 50, () => {
-        setTimeout(() => {
-            renderizarSetAleatorio();
-            grid.classList.remove('glitching');
-            setTimeout(() => decrypter.setText(fraseFilosofica), 1000);
-            setTimeout(() => { typewriterEffect(promptText, matrixPromptEl, 80); }, 1500);
-        }, 500);
-    });
-});
-
-// Función súper robusta: Intenta 2 proxies distintos y lee el XML nativo.
-async function fetchNativeRSS(url, sourceId) {
-    const proxies = [
-        `https://api.allorigins.win/raw?url=`,
-        `https://api.codetabs.com/v1/proxy?quest=`
-    ];
-
-    for (let proxy of proxies) {
-        try {
-            const response = await fetch(proxy + encodeURIComponent(url));
-            if (!response.ok) continue;
-            
-            const text = await response.text();
-            const parser = new DOMParser();
-            const xml = parser.parseFromString(text, "text/xml");
-            
-            // Coge los artículos (algunos XML usan 'item', otros 'entry')
-            const items = Array.from(xml.querySelectorAll("item, entry"));
-            if (items.length === 0) continue; // Si está vacío, prueba el otro proxy
-
-            return items.map(item => {
-                const titulo = item.querySelector("title")?.textContent || "Transmisión Interceptada";
-                
-                // Buscar el enlace correcto
-                const linkEl = item.querySelector("link");
-                const link = linkEl ? (linkEl.textContent || linkEl.getAttribute("href")) : "#";
-                
-                // Buscar fecha
-                const fechaRaw = item.querySelector("pubDate, published, updated")?.textContent || "";
-                let fecha = "SYS.DATE";
-                if (fechaRaw) {
-                    const dateObj = new Date(fechaRaw);
-                    if (!isNaN(dateObj)) fecha = dateObj.toISOString().split('T')[0];
-                }
-
-                // Buscar el contenido más largo que proporcione la web
-                const contentEncoded = item.getElementsByTagNameNS("*", "encoded");
-                let contenidoHtml = "";
-                if (contentEncoded.length > 0) {
-                    contenidoHtml = contentEncoded[0].textContent;
-                } else {
-                    contenidoHtml = item.querySelector("description, content")?.textContent || "";
-                }
-
-                // Limpiar HTML para el resumen de la tarjeta
-                let tempDiv = document.createElement("div");
-                tempDiv.innerHTML = contenidoHtml;
-                let resumenLimpio = tempDiv.textContent || tempDiv.innerText || "";
-
-                return {
-                    titulo,
-                    fecha,
-                    link,
-                    origen: sourceId,
-                    resumen: resumenLimpio.substring(0, 115) + "...",
-                    contenidoCompleto: contenidoHtml
-                };
-            });
-        } catch (error) {
-            // Falla en silencio y prueba el siguiente proxy
-            console.warn(`[SYS] Reintentando conexión para ${sourceId}...`);
-        }
-    }
-    return []; // Si fallan todos, devuelve array vacío
-}
-
-async function cazarSeñalesGlobales() {
-    const loaderText = document.getElementById('loader-text');
-    const loadingBar = document.getElementById('loading-bar');
-    
-    const fuentes = [
-        { url: 'https://phys.org/rss-feed/physics-news/', id: '/PHYS.ORG_QUANTUM' },
-        { url: 'https://singularityhub.com/feed/', id: '/SINGULARITY_HUB' },
-        { url: 'https://www.technologyreview.com/feed/', id: '/MIT_TECH_REVIEW' },
-        { url: 'https://aeon.co/feed.rss', id: '/AEON_PHILOSOPHY' },
-        { url: 'https://www.sciencenews.org/feed', id: '/SCIENCE_NEWS'}
-    ];
-
-    try {
-        loadingBar.style.width = '30%';
-        loaderText.innerText = "[sys.log] Estableciendo túneles seguros. Por favor espere...";
-
-        // Ejecutamos las descargas de forma simultánea a través del sistema Doble Proxy
-        const promesas = fuentes.map(fuente => fetchNativeRSS(fuente.url, fuente.id));
-        const arraysDeNoticias = await Promise.all(promesas);
-
-        loadingBar.style.width = '80%';
-        loaderText.innerText = "[sys.log] Teorías interceptadas. Compilando en matriz local...";
-
-        arraysDeNoticias.forEach(array => {
-            if (array && array.length > 0) {
-                masterDataPool = masterDataPool.concat(array);
-            }
-        });
-
-        // Solo saltará a error si LITERALMENTE no tienes internet o han caído todos los servidores
-        if (masterDataPool.length === 0) {
-            throw new Error('Corte de red');
-        }
-
-        loadingBar.style.width = '100%';
-        setTimeout(() => {
-            document.getElementById('terminal-loader').style.display = 'none';
-            renderizarSetAleatorio(); 
-        }, 800);
-
-    } catch (error) {
-        // CERO noticias falsas. Si hay un error real de internet, te lo dice honestamente.
-        loaderText.innerText = "[ERROR_CRÍTICO] Conexión rechazada. Protocolos externos bloqueados temporalmente. Comprueba tu red.";
-        loadingBar.style.background = '#ff003c';
-        loadingBar.style.width = '100%';
-    }
-}
-
-// Iniciar secuencias
-cazarSeñalesGlobales();
+resizeCanvas(); 
+animateCanvas();
