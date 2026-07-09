@@ -80,7 +80,7 @@ resize(); animate();
 
 
 // ==========================================
-// 2. SISTEMA DE INTERCEPCIÓN DE DATOS (RSS)
+// 2. SISTEMA DE INTERCEPCIÓN DE DATOS MASIVO
 // ==========================================
 const modal = document.getElementById('noteModal');
 const closeModalBtn = document.getElementById('closeModal');
@@ -89,11 +89,10 @@ window.articulosData = [];
 closeModalBtn.addEventListener('click', () => modal.classList.remove('active'));
 modal.addEventListener('click', (e) => { if (e.target === modal) modal.classList.remove('active'); });
 
-// Muestra el modal con la info
 window.abrirArticulo = function(index) {
     const articulo = window.articulosData[index];
     document.getElementById('modalTitle').innerText = articulo.titulo;
-    document.getElementById('modalMeta').innerText = `[FUENTE: ${articulo.origen}] | SYS.DATE: ${articulo.fecha}`;
+    document.getElementById('modalMeta').innerText = `[NODO: ${articulo.origen}] | SYS.DATE: ${articulo.fecha}`;
     document.getElementById('modalBody').innerHTML = articulo.contenidoCompleto;
     
     const btnLink = document.getElementById('modalLink');
@@ -106,15 +105,15 @@ window.abrirArticulo = function(index) {
     modal.classList.add('active');
 }
 
-// Pinta exactamente 9 tarjetas
+// Pinta el enjambre de tarjetas (Hasta 24)
 function renderizarTarjetas() {
     const grid = document.getElementById('jardinDigital');
     grid.innerHTML = ''; 
     
-    // Nos aseguramos de renderizar SOLO las primeras 9 noticias para mantener el grid 3x3 perfecto
-    const exact9Articulos = window.articulosData.slice(0, 9);
+    // Mostramos las primeras 24 para llenar bien la pantalla
+    const enjambre = window.articulosData.slice(0, 24);
 
-    exact9Articulos.forEach((articulo, index) => {
+    enjambre.forEach((articulo, index) => {
         const tarjetaHTML = `
             <article class="node-card" onclick="abrirArticulo(${index})">
                 <div class="node-meta">
@@ -129,62 +128,64 @@ function renderizarTarjetas() {
     });
 }
 
-// Busca información en varias fuentes futuristas a la vez
+// Intercepta señales de Múltiples Fuentes Globales
 async function cazarSeñalesMultiples() {
     const loaderText = document.getElementById('loader-text');
     const loadingBar = document.getElementById('loading-bar');
     
-    // Fuentes de datos: Noticias sobre Inteligencia Artificial, Drones, Singularity...
+    // Lista expandida de fuentes futuristas/tecnológicas
     const fuentes = [
-        'https://www.reddit.com/r/singularity/.rss', // Singularidad tecnológica (Inglés)
-        'https://www.microsiervos.com/index.xml'    // Tecnología general (Español)
+        { url: 'https://www.reddit.com/r/singularity/.rss', id: '/SINGULARITY' },
+        { url: 'https://www.reddit.com/r/Cyberpunk/.rss', id: '/CYBERPUNK' },
+        { url: 'https://hnrss.org/frontpage', id: '/HACKER_NEWS' },
+        { url: 'https://futurism.com/feed', id: '/FUTURISM' },
+        { url: 'https://www.microsiervos.com/index.xml', id: '/MICROSIERVOS' }
     ];
 
     try {
         let todasLasNoticias = [];
-        loadingBar.style.width = '30%';
-        loaderText.innerText = "[sys.log] Conectando con servidores globales de IA...";
+        loadingBar.style.width = '20%';
+        loaderText.innerText = "[sys.log] Hackeando nodos de información globales...";
 
-        // Realizamos peticiones a todas las fuentes simultáneamente
-        const peticiones = fuentes.map(url => 
-            fetch(`https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(url)}`)
+        // Realizamos peticiones masivas
+        const peticiones = fuentes.map(fuente => 
+            fetch(`https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(fuente.url)}`)
             .then(res => res.json())
-            .catch(() => null) // Si una falla, no rompe el resto
+            .then(data => ({ sourceId: fuente.id, data: data }))
+            .catch(() => null)
         );
 
         const resultados = await Promise.all(peticiones);
-        loadingBar.style.width = '70%';
-        loaderText.innerText = "[sys.log] Descifrando paquetes y compilando caché...";
+        loadingBar.style.width = '80%';
+        loaderText.innerText = "[sys.log] Procesando enjambre de datos...";
 
-        // Agrupamos los datos obtenidos
-        resultados.forEach((data, indiceFuente) => {
-            if (data && data.status === 'ok' && data.items) {
-                const origenNombre = indiceFuente === 0 ? "/R_SINGULARITY" : "/MICROSIERVOS";
-                
-                const noticiasAdaptadas = data.items.map(item => {
+        // Agrupamos y limpiamos los datos obtenidos
+        resultados.forEach(resultado => {
+            if (resultado && resultado.data.status === 'ok' && resultado.data.items) {
+                const noticiasAdaptadas = resultado.data.items.map(item => {
                     let divTemporal = document.createElement("div");
                     divTemporal.innerHTML = item.description || item.content || "";
                     let textoLimpio = divTemporal.textContent || divTemporal.innerText || "";
                     
                     return {
                         titulo: item.title,
-                        fecha: item.pubDate.split(' ')[0],
+                        fecha: item.pubDate ? item.pubDate.split(' ')[0] : 'RAW_DATA',
                         link: item.link,
-                        origen: origenNombre,
-                        resumen: textoLimpio.substring(0, 120) + "...",
-                        contenidoCompleto: item.content || item.description,
-                        // Timestamp real para poder ordenarlas por fecha
-                        timestamp: new Date(item.pubDate).getTime()
+                        origen: resultado.sourceId,
+                        // Resumen más corto (80 chars) para encajar en tarjetas pequeñas
+                        resumen: textoLimpio.substring(0, 80) + "...", 
+                        contenidoCompleto: item.content || item.description || textoLimpio,
+                        timestamp: item.pubDate ? new Date(item.pubDate).getTime() : 0
                     };
                 });
                 todasLasNoticias = todasLasNoticias.concat(noticiasAdaptadas);
             }
         });
 
-        // Ordenamos desde la noticia más nueva a la más vieja
+        // Ordenamos cronológicamente (las más nuevas primero)
         todasLasNoticias.sort((a, b) => b.timestamp - a.timestamp);
 
-        if (todasLasNoticias.length < 9) throw new Error('Señales insuficientes');
+        if (todasLasNoticias.length < 10) throw new Error('Señales insuficientes');
 
         loadingBar.style.width = '100%';
         setTimeout(() => {
@@ -195,41 +196,40 @@ async function cazarSeñalesMultiples() {
 
     } catch (error) {
         loaderText.classList.add('warning-text');
-        loaderText.innerText = "[ALERTA] Protocolos externos bloqueados. Desplegando archivo clasificado interno (x9)...";
+        loaderText.innerText = "[ALERTA] Protocolos externos bloqueados. Desplegando enjambre de respaldo...";
         loadingBar.style.background = '#ff003c';
         
-        // DATOS DE RESPALDO: 9 artículos Cyberpunk para llenar el grid 3x3 perfecto
         setTimeout(() => {
             document.getElementById('terminal-loader').style.display = 'none';
-            window.articulosData = generarDatosRespaldo();
+            window.articulosData = generarEnjambreRespaldo();
             renderizarTarjetas();
         }, 1500);
     }
 }
 
-// 9 Noticias Distópicas inventadas por si falla internet
-function generarDatosRespaldo() {
-    const backup = [
-        { t: "Fuga en el código fuente de AGI-7", r: "Sistemas detectaron que la IA ha empezado a reescribir sus propios parámetros morales." },
-        { t: "Deepfakes alcanzan el 100% de hiperrealismo", r: "Tribunales declaran los vídeos obsoletos como evidencia legal tras el incidente Sigma." },
-        { t: "El Protocolo del Olvido Digital", r: "El derecho a desaparecer de la red se ha convertido en el privilegio más caro del siglo." },
-        { t: "Anomalía en interfaces Neuralink", r: "Usuarios reportan 'memorias fantasma' implantadas durante los ciclos de sueño REM." },
-        { t: "Enjambres de Drones Autónomos", r: "La ciudad apagó su red WiFi para detener a un enjambre de reparto fuera de control." },
-        { t: "Colapso de la Realidad Virtual", r: "Más de 10,000 usuarios se niegan a desconectarse del Metaverso tras la última actualización." },
-        { t: "Justicia Algorítmica: Pre-Crimen", r: "Primer arresto basado puramente en cálculos de probabilidad algorítmica y biométrica." },
-        { t: "La Muerte del Trabajo Creativo", r: "IA generativa gana el máximo premio literario bajo un seudónimo humano." },
-        { t: "Sistemas Descentralizados y Resistencia", r: "Grupos underground reviven el protocolo P2P para evitar el escrutinio de la red central." }
+// Enjambre masivo simulado (24 tarjetas de emergencia)
+function generarEnjambreRespaldo() {
+    const titulos = [
+        "Fuga en AGI-7", "Deepfakes Letales", "El Olvido Digital", "Anomalía Neuralink", 
+        "Drones Autónomos", "Colapso del Metaverso", "Justicia Algorítmica", "Fin del Trabajo Creativo", 
+        "Censura Cuántica", "Biotecnología Rebelde", "Guerra de Silicio", "Paranoia Sintética"
     ];
-
-    return backup.map(item => ({
-        titulo: item.t,
-        fecha: "2026-SYS-ERR",
-        link: "#",
-        origen: "/ARCHIVOS_CLASIFICADOS",
-        resumen: item.r,
-        contenidoCompleto: "<p>ACCESO DENEGADO. Nivel de autorización insuficiente para leer el reporte completo.</p>"
-    }));
+    
+    let backup = [];
+    // Generamos 24 tarjetas iterando sobre los títulos y añadiendo IDs falsos para que se vea masivo
+    for(let i = 0; i < 24; i++) {
+        let tIndex = i % titulos.length;
+        backup.push({
+            titulo: `${titulos[tIndex]} [SEC-${Math.floor(Math.random() * 999)}]`,
+            fecha: `2026-ERR-${Math.floor(Math.random() * 99)}`,
+            link: "#",
+            origen: "/SYS_ARCHIVE",
+            resumen: "Fragmento corrupto interceptado. Proceda con precaución. El sistema central ha bloqueado el acceso al nodo...",
+            contenidoCompleto: "<p>ACCESO DENEGADO. Nivel de autorización insuficiente para leer el reporte completo en este nodo.</p>"
+        });
+    }
+    return backup;
 }
 
-// Iniciar secuencias
+// Iniciar
 cazarSeñalesMultiples();
