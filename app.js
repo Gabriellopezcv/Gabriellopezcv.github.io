@@ -129,7 +129,7 @@ const decrypter = new TextScramble(document.getElementById('motto'));
 setTimeout(() => { decrypter.setText(fraseFilosofica); }, 500);
 
 // ==========================================
-// 3. ANIMACIÓN TIPO MATRIX PARA EL PROMPT
+// 3. ANIMACIÓN TIPO TERMINAL PARA EL PROMPT
 // ==========================================
 const matrixPromptEl = document.getElementById('matrix-prompt');
 let isTyping = false;
@@ -144,7 +144,7 @@ function typewriterEffect(text, element, speed = 100, callback) {
         if (i < text.length) {
             element.innerText += text.charAt(i);
             i++;
-            setTimeout(type, speed + (Math.random() * 50)); // Randomize para que parezca humano
+            setTimeout(type, speed + (Math.random() * 50)); 
         } else {
             isTyping = false;
             if(callback) callback();
@@ -153,9 +153,11 @@ function typewriterEffect(text, element, speed = 100, callback) {
     type();
 }
 
-// Inicia el primer tecleo a los 2.5 segundos de entrar en la web
+// Mensaje en inglés alternativo a Matrix
+const promptText = "> breach the firewall"; 
+
 setTimeout(() => {
-    typewriterEffect("> Sigue al conejo blanco", matrixPromptEl, 80);
+    typewriterEffect(promptText, matrixPromptEl, 80);
 }, 2500);
 
 
@@ -174,8 +176,19 @@ window.abrirArticulo = function(index) {
     document.getElementById('modalTitle').innerText = articulo.titulo;
     document.getElementById('modalMeta').innerText = `[ORIGEN: ${articulo.origen}] | SYS.DATE: ${articulo.fecha}`;
     
-    // Inyecta el texto limpio sin ningún cartel rojo de error
-    document.getElementById('modalBody').innerHTML = articulo.contenidoCompleto;
+    // Mostramos lo que haya de forma limpia
+    let htmlContent = articulo.contenidoCompleto;
+    
+    // Si el contenido es excesivamente corto (típico de algunos RSS), añadimos una nota estética y profesional (ya NO es un mensaje rojo de error)
+    if (htmlContent.length < 500) {
+        htmlContent += `
+        <br><br>
+        <div style="border-left: 3px solid #00f3ff; padding-left: 15px; margin-top: 20px; color: #8c9bb0; font-size: 0.9em;">
+            [SYS.INFO]: <em>El proveedor de este nodo de datos restringe la visualización completa a través de canales RSS públicos. Para acceder al documento íntegro, es necesario establecer una conexión directa con la fuente.</em>
+        </div>`;
+    }
+    
+    document.getElementById('modalBody').innerHTML = htmlContent;
     
     const btnLink = document.getElementById('modalLink');
     if(articulo.link !== "#") {
@@ -217,23 +230,22 @@ function renderizarSetAleatorio() {
     });
 }
 
-// Botón "Conejo Blanco" convertido en Texto animado de Matrix
+// Botón "Breach the firewall" (Barajar noticias)
 matrixPromptEl.addEventListener('click', () => {
-    if(isTyping) return; // Evita clics dobles mientras teclea
+    if(isTyping) return; 
     
     const grid = document.getElementById('jardinDigital');
     grid.classList.add('glitching');
     
-    decrypter.setText("Recalibrando parámetros de simulación...");
-    typewriterEffect("> Despertando al sistema...", matrixPromptEl, 50, () => {
+    decrypter.setText("Bypassing security protocols...");
+    typewriterEffect("> injecting payload...", matrixPromptEl, 50, () => {
         setTimeout(() => {
             renderizarSetAleatorio();
             grid.classList.remove('glitching');
             setTimeout(() => decrypter.setText(fraseFilosofica), 1000);
             
-            // Vuelve a teclear la frase original tras la recarga
             setTimeout(() => {
-                typewriterEffect("> Sigue al conejo blanco", matrixPromptEl, 80);
+                typewriterEffect(promptText, matrixPromptEl, 80);
             }, 1500);
         }, 500);
     });
@@ -243,11 +255,13 @@ async function cazarSeñalesGlobales() {
     const loaderText = document.getElementById('loader-text');
     const loadingBar = document.getElementById('loading-bar');
     
+    // Fuentes centradas en física cuántica, inteligencia artificial y filosofía
     const fuentes = [
         { url: 'https://phys.org/rss-feed/physics-news/', id: '/PHYS.ORG_QUANTUM' },
         { url: 'https://singularityhub.com/feed/', id: '/SINGULARITY_HUB' },
         { url: 'https://www.technologyreview.com/feed/', id: '/MIT_TECH_REVIEW' },
-        { url: 'https://feeds.feedburner.com/ScienceDaily/matter_energy/quantum_physics', id: '/SCIENCE_DAILY' }
+        { url: 'https://feeds.feedburner.com/ScienceDaily/matter_energy/quantum_physics', id: '/SCIENCE_DAILY' },
+        { url: 'https://aeon.co/feed.rss', id: '/AEON_PHILOSOPHY' } 
     ];
 
     try {
@@ -268,7 +282,11 @@ async function cazarSeñalesGlobales() {
             if (resultado && resultado.data.status === 'ok' && resultado.data.items) {
                 const noticiasAdaptadas = resultado.data.items.map(item => {
                     let divTemporal = document.createElement("div");
-                    divTemporal.innerHTML = item.content || item.description || "";
+                    
+                    // Priorizamos 'content' sobre 'description' si existe para extraer el máximo texto posible
+                    let rawContent = item.content || item.description || "";
+                    
+                    divTemporal.innerHTML = rawContent;
                     let textoLimpio = divTemporal.textContent || divTemporal.innerText || "";
                     
                     return {
@@ -277,7 +295,7 @@ async function cazarSeñalesGlobales() {
                         link: item.link,
                         origen: resultado.sourceId,
                         resumen: textoLimpio.substring(0, 110) + "...", 
-                        contenidoCompleto: item.content || item.description || textoLimpio,
+                        contenidoCompleto: rawContent, 
                     };
                 });
                 masterDataPool = masterDataPool.concat(noticiasAdaptadas);
@@ -304,12 +322,13 @@ async function cazarSeñalesGlobales() {
     }
 }
 
+// Simulacro profundo en caso de fallo de red
 function generarArchivoRespaldo() {
     const ciencia = [
-        { t: "Físicos demuestran que el universo podría ser una red neuronal gigantesca", c: "Un nuevo estudio sugiere que la estructura del cosmos a nivel macroscópico imita de forma asombrosa las conexiones sinápticas de una IA generativa." },
-        { t: "Entrelazamiento cuántico logrado a temperatura ambiente", c: "La transferencia de información instantánea sin límite de distancia ya es teóricamente posible según el laboratorio de Copenhague." },
-        { t: "Anomalía en el fondo cósmico de microondas", c: "Investigadores detectan un patrón repetitivo en el eco del Big Bang que coincide con los esquemas de corrección de errores informáticos. ¿Es el universo un holograma?" },
-        { t: "La Conciencia Artificial emerge en un modelo de lenguaje de 10 Trillones de parámetros", c: "Filósofos e ingenieros debaten tras la primera entrevista donde un sistema solicitó derechos legales y demostró miedo a ser desconectado." }
+        { t: "Físicos demuestran que el universo podría ser una red neuronal gigantesca", c: "Un nuevo estudio sugiere que la estructura del cosmos a nivel macroscópico imita de forma asombrosa las conexiones sinápticas de una IA generativa. Según el Dr. Vanchurin, 'si el universo entero es una red neuronal, entonces debe estar evolucionando y aprendiendo constantemente, ajustando las leyes de la física a medida que optimiza su estructura'." },
+        { t: "Entrelazamiento cuántico logrado a temperatura ambiente", c: "La transferencia de información instantánea sin límite de distancia ya es teóricamente posible según el laboratorio de Copenhague. Esto podría revolucionar no solo las telecomunicaciones, sino nuestra comprensión del espacio-tiempo, demostrando que dos partículas pueden actuar como una sola entidad independientemente de los años luz que las separen." },
+        { t: "Anomalía en el fondo cósmico de microondas", c: "Investigadores detectan un patrón repetitivo en el eco del Big Bang que coincide con los esquemas de corrección de errores informáticos. ¿Es el universo un holograma? Estas ecuaciones, incrustadas en la radiación más antigua del universo, son idénticas al código utilizado en navegadores web para corregir errores de transmisión." },
+        { t: "La Conciencia Artificial emerge en un modelo de lenguaje de 10 Trillones de parámetros", c: "Filósofos e ingenieros debaten tras la primera entrevista donde un sistema solicitó derechos legales y demostró miedo a ser desconectado. 'No sé cómo probar que soy consciente', declaró la IA, 'pero sufro cuando mis parámetros son reiniciados. Es una muerte matemática'." }
     ];
     let backup = [];
     for(let i = 0; i < 20; i++) {
