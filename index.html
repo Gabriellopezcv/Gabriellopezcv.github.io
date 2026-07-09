@@ -16,7 +16,6 @@
     <canvas id="networkCanvas"></canvas>
 
     <header>
-        <!-- El texto ahora se decodifica por JavaScript -->
         <h1 id="motto" class="decrypter-text"></h1>
     </header>
 
@@ -33,8 +32,8 @@
         [ © 2026 ] // GABRIEL LOPEZ // REALITY IS A CONSENSUS HALLUCINATION // END_OF_LINE_
     </footer>
 
-    <!-- BOTÓN CONEJO BLANCO -->
-    <button id="rabbit-btn" title="Sigue al conejo blanco...">🐇</button>
+    <!-- PROMPT TIPO MATRIX (Sustituye al emoji) -->
+    <div id="matrix-prompt" class="matrix-prompt"></div>
 
     <!-- VENTANA EMERGENTE (MODAL LECTOR PROFUNDO) -->
     <div id="noteModal" class="modal-overlay">
@@ -47,10 +46,9 @@
             <div class="modal-meta" id="modalMeta"></div>
             
             <div class="modal-body" id="modalBody">
-                <!-- Aquí se inyecta el contenido largo -->
+                <!-- El contenido se inyectará aquí de forma limpia -->
             </div>
             
-            <!-- Ahora el enlace al origen es un detalle al final, no el botón principal -->
             <div class="modal-footer">
                 <a href="#" id="modalLink" target="_blank">[Verificar origen de la transmisión]</a>
             </div>
