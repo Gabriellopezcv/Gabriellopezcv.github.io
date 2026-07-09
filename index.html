@@ -7,42 +7,42 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-
     <div class="crt-scanlines"></div>
     <div class="vignette"></div>
-
-    <canvas id="networkCanvas"></canvas>
+    <canvas id="cyber-canvas"></canvas>
 
     <header>
         <h1 id="motto" class="decrypter-text"></h1>
     </header>
 
     <main>
+        <!-- Pantalla de carga inicial -->
         <div id="terminal-loader">
             <span id="loader-text">[sys.boot] Escaneando anomalías en el tejido de la red...</span>
             <div class="progress-bar"><div class="progress" id="loading-bar"></div></div>
         </div>
         
-        <!-- Navegación por Categorías Secretas -->
-        <nav class="hud-nav hidden" id="category-nav" style="margin-bottom: 25px; border-bottom: 1px solid rgba(0, 243, 255, 0.3); padding-bottom: 15px;">
+        <!-- Navegación del archivo -->
+        <nav class="hud-nav hidden" id="category-nav">
             <button class="cyber-btn active" data-category="inicio">/INICIO</button>
             <button class="cyber-btn" data-category="wikileaks">/WIKI_LEAKS</button>
             <button class="cyber-btn" data-category="nsa">/ARCHIVOS_NSA</button>
             <button class="cyber-btn" data-category="uap">/PENTAGON_UAP</button>
         </nav>
 
-        <div class="garden-grid" id="jardinDigital"></div>
+        <!-- Contenedor de las tarjetas -->
+        <div class="garden-grid hidden" id="jardinDigital"></div>
     </main>
 
     <footer>
         [ © 2026 ] // GABRIEL LOPEZ // REALITY IS A CONSENSUS HALLUCINATION // END_OF_LINE_
     </footer>
 
-    <!-- VENTANA DE LECTURA DE ARCHIVOS -->
+    <!-- Ventana de lectura profunda -->
     <div id="reader-modal" class="modal-overlay hidden">
         <div class="modal-content">
             <div class="modal-header">
-                <span style="color: #ff003c; font-weight: bold; letter-spacing: 2px;">[ CLASIFICACIÓN: ALTO SECRETO ]</span>
+                <span class="modal-classification">[ CLASIFICACIÓN: ALTO SECRETO ]</span>
                 <button class="close-btn" id="close-modal-btn">&times;</button>
             </div>
             <div class="modal-body-container">
