@@ -51,7 +51,8 @@
 
         @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
 
-        #loader { text-align: center; font-size: 1.2rem; color: #00f3ff; margin: 40px 0; }
+        #loader { text-align: center; font-size: 1.1rem; color: #00f3ff; margin: 40px 0; min-height: 30px;}
+        .warning-text { color: #ffb86c !important; }
 
         main { padding: 20px 40px 100px; max-width: 1300px; margin: 0 auto; }
 
@@ -64,6 +65,7 @@
             border: 1px solid rgba(0, 243, 255, 0.15); border-radius: 8px;
             padding: 25px; transition: all 0.3s ease; position: relative; overflow: hidden;
             cursor: pointer; display: flex; flex-direction: column; justify-content: space-between;
+            min-height: 220px;
         }
 
         .node-card:hover {
@@ -112,7 +114,7 @@
         }
         .modal-body { color: #c8e0ff; line-height: 1.7; font-size: 1.05rem; margin-bottom: 30px; }
         
-        .modal-body img, .modal-body iframe { 
+        .modal-body img, .modal-body iframe, .modal-body video { 
             max-width: 100%; height: auto; border-radius: 5px; margin: 15px 0; 
         }
 
@@ -145,7 +147,7 @@
     </header>
 
     <main>
-        <div id="loader">Descifrando paquetes del stream de datos..._</div>
+        <div id="loader">Intentando vulnerar protocolos RSS..._</div>
         <div class="garden-grid" id="jardinDigital"></div>
     </main>
 
@@ -155,12 +157,12 @@
             <h2 id="modalTitle" class="modal-title"></h2>
             <div class="modal-meta" id="modalMeta"></div>
             <div class="modal-body" id="modalBody"></div>
-            <a href="#" id="modalLink" class="cyber-btn" target="_blank">Leer transmisión original &rarr;</a>
+            <a href="#" id="modalLink" class="cyber-btn" target="_blank">Acceder al nodo original &rarr;</a>
         </div>
     </div>
 
     <script>
-        // --- 1. FONDO ANIMADO ---
+        // --- 1. MOTOR GRÁFICO (FONDO ANIMADO) ---
         const canvas = document.getElementById('networkCanvas');
         const ctx = canvas.getContext('2d');
         let width, height, particles = [], particleCount, connectionDistance;
@@ -239,7 +241,7 @@
 
         resize(); animate();
 
-        // --- 2. EXTRACCIÓN DE DATOS (PARSER XML NATIVO) ---
+        // --- 2. SISTEMA DE DATOS AUTÓNOMO Y ANTIFALLOS ---
         const modal = document.getElementById('noteModal');
         const closeModalBtn = document.getElementById('closeModal');
         window.articulosData = [];
@@ -250,76 +252,111 @@
         function abrirArticulo(index) {
             const articulo = window.articulosData[index];
             document.getElementById('modalTitle').innerText = articulo.titulo;
-            document.getElementById('modalMeta').innerText = `[ORIGEN: RSS] | ESTADO: VERIFICADO | FECHA: ${articulo.fecha}`;
+            document.getElementById('modalMeta').innerText = `[ORIGEN: ${articulo.origen}] | FECHA: ${articulo.fecha}`;
             document.getElementById('modalBody').innerHTML = articulo.contenidoCompleto;
-            document.getElementById('modalLink').href = articulo.link;
+            
+            const btnLink = document.getElementById('modalLink');
+            if(articulo.link !== "#") {
+                btnLink.style.display = "inline-block";
+                btnLink.href = articulo.link;
+            } else {
+                btnLink.style.display = "none";
+            }
             modal.classList.add('active');
         }
 
-        async function cargarRSSAutomático() {
+        // Función que pinta las tarjetas en pantalla
+        function renderizarTarjetas() {
             const grid = document.getElementById('jardinDigital');
+            grid.innerHTML = ''; // Limpiar antes de pintar
+            window.articulosData.forEach((articulo, index) => {
+                const tarjetaHTML = `
+                    <article class="node-card" onclick="abrirArticulo(${index})">
+                        <div class="node-meta">
+                            <span class="tech-tag">/data_stream</span>
+                            <span>${articulo.fecha}</span>
+                        </div>
+                        <h2 class="node-title">${articulo.titulo}</h2>
+                        <p class="node-content">${articulo.resumen}</p>
+                    </article>
+                `;
+                grid.innerHTML += tarjetaHTML;
+            });
+        }
+
+        async function cargarRSSAutomático() {
             const loader = document.getElementById('loader');
             
             try {
-                // Usamos AllOrigins, un proxy público muy robusto, para evitar bloqueos CORS
-                const urlFuenteRSS = 'https://www.xataka.com/feed';
-                const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(urlFuenteRSS)}`;
+                // Usamos la API pública de RSS a JSON apuntando a Microsiervos (Feed Abierto, sin Cloudflare)
+                const rssUrl = encodeURIComponent('https://www.microsiervos.com/index.xml');
+                const apiUrl = `https://api.rss2json.com/v1/api.json?rss_url=${rssUrl}`;
                 
-                const respuesta = await fetch(proxyUrl);
+                const respuesta = await fetch(apiUrl);
                 const data = await respuesta.json();
 
-                // El navegador convierte el texto de internet en un documento que podemos analizar (DOMParser)
-                const parser = new DOMParser();
-                const xmlDoc = parser.parseFromString(data.contents, "text/xml");
-                const items = xmlDoc.querySelectorAll("item");
-
-                if (items.length === 0) throw new Error('Señal vacía o interceptada por firewall.');
+                if (data.status !== 'ok' || !data.items || data.items.length === 0) {
+                    throw new Error('Bloqueo del servidor o feed vacío.');
+                }
 
                 loader.style.display = 'none';
 
-                // Recorremos los primeros 12 artículos que encontramos en el XML
-                for (let i = 0; i < Math.min(items.length, 12); i++) {
-                    const item = items[i];
-                    
-                    // Extraemos los datos etiqueta por etiqueta
-                    const titulo = item.querySelector("title")?.textContent || "Transmisión Corrupta";
-                    const link = item.querySelector("link")?.textContent || "#";
-                    
-                    // Formateamos la fecha
-                    const fechaRaw = item.querySelector("pubDate")?.textContent || new Date().toISOString();
-                    const fecha = new Date(fechaRaw).toLocaleDateString('es-ES');
-
-                    // El contenido a veces viene en 'description' y a veces en 'content:encoded'
-                    let contenidoHtml = item.querySelector("encoded")?.textContent || item.querySelector("description")?.textContent || "";
-                    
-                    // Limpiamos todo el HTML para poder mostrar solo las primeras palabras en la tarjeta
+                // Procesamos los datos reales
+                window.articulosData = data.items.map(item => {
                     let divTemporal = document.createElement("div");
-                    divTemporal.innerHTML = contenidoHtml;
+                    divTemporal.innerHTML = item.description || item.content || "";
                     let textoLimpio = divTemporal.textContent || divTemporal.innerText || "";
-                    let resumen = textoLimpio.substring(0, 130) + "...";
-
-                    window.articulosData.push({ titulo, fecha, link, resumen, contenidoCompleto: contenidoHtml });
-                }
-
-                // Generamos las tarjetas dinámicamente
-                window.articulosData.forEach((articulo, index) => {
-                    const tarjetaHTML = `
-                        <article class="node-card" onclick="abrirArticulo(${index})">
-                            <div class="node-meta">
-                                <span class="tech-tag">/data_stream</span>
-                                <span>${articulo.fecha}</span>
-                            </div>
-                            <h2 class="node-title">${articulo.titulo}</h2>
-                            <p class="node-content">${articulo.resumen}</p>
-                        </article>
-                    `;
-                    grid.innerHTML += tarjetaHTML;
+                    
+                    return {
+                        titulo: item.title,
+                        fecha: item.pubDate.split(' ')[0],
+                        link: item.link,
+                        origen: "EXTERNO",
+                        resumen: textoLimpio.substring(0, 130) + "...",
+                        contenidoCompleto: item.content || item.description
+                    };
                 });
 
+                renderizarTarjetas();
+
             } catch (error) {
-                console.error("Fallo de Inyección RSS:", error);
-                loader.innerText = "ALERTA: Firewall detectado. No se pudo establecer conexión con el origen de los datos.";
-                loader.style.color = "#ff003c";
+                console.warn("Fallo de Inyección RSS, activando protocolo de emergencia...");
+                
+                // Si la web externa nos bloquea, mostramos este mensaje chulo:
+                loader.innerText = "ALERTA: Firewall detectado. Cargando caché de emergencia del sistema local...";
+                loader.classList.add('warning-text');
+
+                // Simulamos un pequeño retraso de hackeo y cargamos TUS datos estáticos de respaldo
+                setTimeout(() => {
+                    loader.style.display = 'none';
+                    window.articulosData = [
+                        {
+                            titulo: "La ilusión del libre albedrío en algoritmos predictivos",
+                            fecha: "2026-07-09",
+                            origen: "MEMORIA_LOCAL",
+                            link: "#",
+                            resumen: "Nuestras decisiones en la red están siendo perfiladas constantemente. ¿Elegiste hacer clic o el algoritmo te guió a ello?",
+                            contenidoCompleto: "<p>Cuando un sistema computacional es capaz de predecir tus acciones con un 99% de precisión, la frontera entre tu propia decisión y la sugestión de la máquina se rompe.</p><br><p>Vivimos en una época donde las redes neuronales conocen nuestros miedos, deseos y rutinas mejor que nosotros mismos. La próxima vez que sientas que descubriste algo nuevo en internet de forma casual, recuerda: ese encuentro estuvo matemáticamente calculado milisegundos antes de que ocurriera.</p>"
+                        },
+                        {
+                            titulo: "El protocolo del Olvido Digital",
+                            fecha: "2026-07-08",
+                            origen: "MEMORIA_LOCAL",
+                            link: "#",
+                            resumen: "El derecho a desaparecer de la red se ha convertido en el privilegio más caro del siglo XXI.",
+                            contenidoCompleto: "<p>En los inicios de internet, el anonimato era la norma. Hoy es una rareza. Cada registro, cada IP conectada a un servidor, crea una sombra digital que nos persigue.</p><br><p>Los 'borradores de identidad' serán la profesión más demandada de la próxima década. Hackers éticos dedicados exclusivamente a inyectar ruido en bases de datos para confundir a los perfiladores algorítmicos y devolverle a la gente su derecho fundamental a ser olvidada.</p>"
+                        },
+                        {
+                            titulo: "Sistemas Descentralizados y la Resistencia",
+                            fecha: "2026-07-07",
+                            origen: "MEMORIA_LOCAL",
+                            link: "#",
+                            resumen: "Si un nodo cae, la red sobrevive. La topología p2p es la única estructura capaz de soportar la censura global.",
+                            contenidoCompleto: "<p>Almacenar la información en servidores centrales es poner un único punto de fallo (SPOF) en la arquitectura de la humanidad.</p><br><p>La adopción de tecnologías como IPFS (InterPlanetary File System) asegura que la información fluya como el agua: si bloqueas un canal, simplemente buscará otra ruta a través de los nodos. Tus recuerdos no son tuyos, pero mientras estén distribuidos, nadie podrá borrarlos.</p>"
+                        }
+                    ];
+                    renderizarTarjetas();
+                }, 2000);
             }
         }
 
