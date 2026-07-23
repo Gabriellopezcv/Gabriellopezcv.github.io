@@ -3,56 +3,308 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SISTEMA.CERO | Archivos Clasificados</title>
-    <link rel="stylesheet" href="style.css">
+    <title>Sincronizando...</title>
+    <style>
+        /* RESET Y FONDO BASE */
+        body, html {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            background-color: #050505;
+            overflow: hidden;
+            font-family: 'Courier New', Courier, monospace;
+            cursor: crosshair;
+        }
+
+        /* CAPA DEL CANVAS (PARTÍCULAS) */
+        #particle-canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+        }
+
+        /* CONTENEDOR CENTRAL */
+        .core-container {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 2;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            pointer-events: none; /* Deja que el ratón interactúe con el canvas de fondo */
+        }
+
+        /* LA ENTIDAD (EL OJO/NÚCLEO) */
+        .entity {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            background: radial-gradient(circle, #1a0033 0%, #000000 80%);
+            box-shadow: 0 0 30px #8a2be2, inset 0 0 40px #4b0082;
+            position: relative;
+            animation: levitate 4s ease-in-out infinite, pulse 3s infinite alternate;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .iris {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: radial-gradient(circle, #00ffcc 10%, #006699 60%, #000 100%);
+            box-shadow: 0 0 20px #00ffcc;
+            position: absolute;
+            transition: transform 0.1s ease-out; /* Movimiento suave al seguir el ratón */
+        }
+
+        .pupil {
+            width: 20px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: #000;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            box-shadow: 0 0 10px rgba(255,255,255,0.2);
+            animation: blink 5s infinite;
+        }
+
+        /* TEXTO GLITCH */
+        .glitch {
+            margin-top: 50px;
+            color: #00ffcc;
+            font-size: 1.5rem;
+            letter-spacing: 5px;
+            text-transform: uppercase;
+            position: relative;
+            text-shadow: 0 0 10px rgba(0, 255, 204, 0.8);
+            user-select: none;
+        }
+
+        .glitch::before, .glitch::after {
+            content: attr(data-text);
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0.8;
+        }
+
+        .glitch::before {
+            left: 2px;
+            text-shadow: -2px 0 #ff00ff;
+            clip: rect(44px, 450px, 56px, 0);
+            animation: glitch-anim 5s infinite linear alternate-reverse;
+        }
+
+        .glitch::after {
+            left: -2px;
+            text-shadow: -2px 0 #00ffcc;
+            clip: rect(44px, 450px, 56px, 0);
+            animation: glitch-anim2 5s infinite linear alternate-reverse;
+        }
+
+        /* ANIMACIONES CSS */
+        @keyframes levitate {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-20px); }
+        }
+
+        @keyframes pulse {
+            0% { box-shadow: 0 0 30px #8a2be2, inset 0 0 20px #4b0082; }
+            100% { box-shadow: 0 0 70px #ff00ff, inset 0 0 50px #8a2be2; }
+        }
+
+        @keyframes blink {
+            0%, 90%, 100% { transform: translate(-50%, -50%) scaleY(1); }
+            95% { transform: translate(-50%, -50%) scaleY(0.1); }
+        }
+
+        @keyframes glitch-anim {
+            0% { clip: rect(10px, 9999px, 83px, 0); transform: skew(0.8deg); }
+            20% { clip: rect(65px, 9999px, 12px, 0); transform: skew(0.6deg); }
+            40% { clip: rect(43px, 9999px, 2px, 0); transform: skew(0.3deg); }
+            60% { clip: rect(12px, 9999px, 98px, 0); transform: skew(0.5deg); }
+            80% { clip: rect(85px, 9999px, 44px, 0); transform: skew(0.2deg); }
+            100% { clip: rect(32px, 9999px, 55px, 0); transform: skew(0.9deg); }
+        }
+
+        @keyframes glitch-anim2 {
+            0% { clip: rect(65px, 9999px, 100px, 0); transform: skew(0.1deg); }
+            20% { clip: rect(3px, 9999px, 45px, 0); transform: skew(0.8deg); }
+            40% { clip: rect(88px, 9999px, 12px, 0); transform: skew(0.4deg); }
+            60% { clip: rect(12px, 9999px, 78px, 0); transform: skew(0.2deg); }
+            80% { clip: rect(45px, 9999px, 23px, 0); transform: skew(0.6deg); }
+            100% { clip: rect(98px, 9999px, 2px, 0); transform: skew(0.3deg); }
+        }
+    </style>
 </head>
 <body>
-    <div class="crt-scanlines"></div>
-    <div class="vignette"></div>
-    <canvas id="cyber-canvas"></canvas>
 
-    <header>
-        <h1 id="motto" class="decrypter-text"></h1>
-    </header>
+    <canvas id="particle-canvas"></canvas>
 
-    <main>
-        <!-- Pantalla de carga inicial -->
-        <div id="terminal-loader">
-            <span id="loader-text">[sys.boot] Escaneando anomalías en el tejido de la red...</span>
-            <div class="progress-bar"><div class="progress" id="loading-bar"></div></div>
-        </div>
-        
-        <!-- Navegación del archivo -->
-        <nav class="hud-nav hidden" id="category-nav">
-            <button class="cyber-btn active" data-category="inicio">/INICIO</button>
-            <button class="cyber-btn" data-category="wikileaks">/WIKI_LEAKS</button>
-            <button class="cyber-btn" data-category="nsa">/ARCHIVOS_NSA</button>
-            <button class="cyber-btn" data-category="uap">/PENTAGON_UAP</button>
-        </nav>
-
-        <!-- Contenedor de las tarjetas -->
-        <div class="garden-grid hidden" id="jardinDigital"></div>
-    </main>
-
-    <footer>
-        [ © 2026 ] // GABRIEL LOPEZ // REALITY IS A CONSENSUS HALLUCINATION // END_OF_LINE_
-    </footer>
-
-    <!-- Ventana de lectura profunda -->
-    <div id="reader-modal" class="modal-overlay hidden">
-        <div class="modal-content">
-            <div class="modal-header">
-                <span class="modal-classification">[ CLASIFICACIÓN: ALTO SECRETO ]</span>
-                <button class="close-btn" id="close-modal-btn">&times;</button>
-            </div>
-            <div class="modal-body-container">
-                <h2 id="reader-title" class="reader-title"></h2>
-                <div class="reader-meta" id="reader-meta"></div>
-                <div id="reader-content" class="reader-text"></div>
+    <div class="core-container">
+        <div class="entity" id="entity">
+            <div class="iris" id="iris">
+                <div class="pupil"></div>
             </div>
         </div>
+        <div class="glitch" id="mystic-text" data-text="INCUBANDO...">INCUBANDO...</div>
     </div>
 
-    <script src="app.js"></script>
+    <script>
+        // --- 1. LÓGICA DEL OJO QUE SIGUE EL RATÓN ---
+        const iris = document.getElementById('iris');
+        const entity = document.getElementById('entity');
+
+        document.addEventListener('mousemove', (e) => {
+            const rect = entity.getBoundingClientRect();
+            // Calcular el centro del ojo
+            const entityX = rect.left + rect.width / 2;
+            const entityY = rect.top + rect.height / 2;
+            
+            // Calcular el ángulo entre el ratón y el centro
+            const angle = Math.atan2(e.clientY - entityY, e.clientX - entityX);
+            
+            // Distancia máxima que el iris puede moverse
+            const distance = 25; 
+            
+            const irisX = Math.cos(angle) * distance;
+            const irisY = Math.sin(angle) * distance;
+
+            // Mover el iris
+            iris.style.transform = `translate(${irisX}px, ${irisY}px)`;
+        });
+
+
+        // --- 2. LÓGICA DE TEXTOS MISTERIOSOS ---
+        const textElement = document.getElementById('mystic-text');
+        const phrases = [
+            "INCUBANDO...",
+            "EL DOMINIO ESTÁ SOÑANDO",
+            "RECOPILANDO ENERGÍA",
+            "NO ESTAMOS SOLOS",
+            "ALGO SE GESTA EN EL VACÍO",
+            "PRONTO..."
+        ];
+        let phraseIndex = 0;
+
+        setInterval(() => {
+            phraseIndex = (phraseIndex + 1) % phrases.length;
+            textElement.innerText = phrases[phraseIndex];
+            textElement.setAttribute('data-text', phrases[phraseIndex]);
+        }, 4000); // Cambia el texto cada 4 segundos
+
+
+        // --- 3. LÓGICA DEL CANVAS (RED NEURONAL / PARTÍCULAS) ---
+        const canvas = document.getElementById('particle-canvas');
+        const ctx = canvas.getContext('2d');
+        let width, height, particles;
+
+        function initCanvas() {
+            width = canvas.width = window.innerWidth;
+            height = canvas.height = window.innerHeight;
+            particles = [];
+            
+            // Crear partículas basadas en el tamaño de la pantalla
+            const particleCount = Math.floor(width / 15);
+            for (let i = 0; i < particleCount; i++) {
+                particles.push(new Particle());
+            }
+        }
+
+        class Particle {
+            constructor() {
+                this.x = Math.random() * width;
+                this.y = Math.random() * height;
+                this.vx = (Math.random() - 0.5) * 1.5;
+                this.vy = (Math.random() - 0.5) * 1.5;
+                this.radius = Math.random() * 2 + 1;
+            }
+
+            update() {
+                this.x += this.vx;
+                this.y += this.vy;
+
+                // Rebotar en los bordes
+                if (this.x < 0 || this.x > width) this.vx *= -1;
+                if (this.y < 0 || this.y > height) this.vy *= -1;
+            }
+
+            draw() {
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+                ctx.fillStyle = 'rgba(0, 255, 204, 0.5)';
+                ctx.fill();
+            }
+        }
+
+        let mouse = { x: null, y: null };
+        window.addEventListener('mousemove', (e) => {
+            mouse.x = e.clientX;
+            mouse.y = e.clientY;
+        });
+        window.addEventListener('mouseout', () => {
+            mouse.x = null;
+            mouse.y = null;
+        });
+
+        function animate() {
+            ctx.clearRect(0, 0, width, height);
+
+            for (let i = 0; i < particles.length; i++) {
+                particles[i].update();
+                particles[i].draw();
+
+                // Conectar partículas entre sí
+                for (let j = i + 1; j < particles.length; j++) {
+                    const dx = particles[i].x - particles[j].x;
+                    const dy = particles[i].y - particles[j].y;
+                    const dist = Math.sqrt(dx * dx + dy * dy);
+
+                    if (dist < 120) {
+                        ctx.beginPath();
+                        ctx.strokeStyle = `rgba(138, 43, 226, ${1 - dist/120})`; // Morado que se desvanece
+                        ctx.lineWidth = 1;
+                        ctx.moveTo(particles[i].x, particles[i].y);
+                        ctx.lineTo(particles[j].x, particles[j].y);
+                        ctx.stroke();
+                    }
+                }
+
+                // Interacción de partículas con el ratón
+                if (mouse.x && mouse.y) {
+                    const dx = particles[i].x - mouse.x;
+                    const dy = particles[i].y - mouse.y;
+                    const dist = Math.sqrt(dx * dx + dy * dy);
+                    
+                    if (dist < 150) {
+                        ctx.beginPath();
+                        ctx.strokeStyle = `rgba(0, 255, 204, ${1 - dist/150})`; // Cyan al ratón
+                        ctx.lineWidth = 1.5;
+                        ctx.moveTo(particles[i].x, particles[i].y);
+                        ctx.lineTo(mouse.x, mouse.y);
+                        ctx.stroke();
+                    }
+                }
+            }
+            requestAnimationFrame(animate);
+        }
+
+        // Iniciar
+        window.addEventListener('resize', initCanvas);
+        initCanvas();
+        animate();
+    </script>
 </body>
 </html>
