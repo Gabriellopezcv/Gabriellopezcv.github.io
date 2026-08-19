@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>ARCHIVO // Base de Datos de Avistamientos</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=JetBrains+Mono:wght@400;500;700&family=Special+Elite&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#0b0e0f;
+    --paper:#e9e2cf;
+    --paper-dim:#d8cfb4;
+    --amber:#ffb000;
+    --amber-dim:#a67300;
+    --stamp-red:#8c2f2f;
+    --teal:#2e3b3a;
+    --line: rgba(233,226,207,0.15);
+  }
+  *{box-sizing:border-box;}
+  html,body{height:100%;margin:0;background:var(--ink);color:var(--paper);font-family:'JetBrains Mono',monospace;}
+  #map{position:absolute;inset:0;filter:saturate(0.85) contrast(1.05);}
+
+  /* ---- HUD header ---- */
+  .hud-top{
+    position:absolute;top:0;left:0;right:0;z-index:1000;
+    display:flex;align-items:center;justify-content:space-between;
+    padding:14px 20px;
+    background:linear-gradient(180deg, rgba(11,14,15,0.92), rgba(11,14,15,0));
+    pointer-events:none;
+  }
+  .hud-top .brand{pointer-events:auto;}
+  .brand-title{
+    font-family:'Bebas Neue',sans-serif;
+    font-size:28px;letter-spacing:3px;color:var(--amber);
+    line-height:1;
+  }
+  .brand-sub{font-size:10px;letter-spacing:2px;color:var(--paper-dim);margin-top:2px;}
+  .hud-count{
+    pointer-events:auto;
+    font-size:11px;letter-spacing:1px;color:var(--paper-dim);
+    border:1px solid var(--line);padding:6px 10px;background:rgba(11,14,15,0.6);
+  }
+  .hud-count b{color:var(--amber);font-weight:700;}
+
+  /* ---- report button, stamp style ---- */
+  .report-btn{
+    position:absolute;bottom:28px;right:24px;z-index:1000;
+    font-family:'Bebas Neue',sans-serif;
+    font-size:18px;letter-spacing:2px;
+    background:var(--stamp-red);color:var(--paper);
+    border:2px solid var(--paper);border-radius:2px;
+    padding:14px 22px;cursor:pointer;
+    transform:rotate(-2deg);
+    box-shadow:0 4px 14px rgba(0,0,0,0.5);
+    transition:transform .15s ease;
+  }
+  .report-btn:hover{transform:rotate(0deg) scale(1.03);}
+
+  .hint-pin{
+    position:absolute;bottom:28px;left:24px;z-index:1000;
+    font-size:11px;color:var(--paper-dim);letter-spacing:0.5px;
+    background:rgba(11,14,15,0.7);border:1px solid var(--line);
+    padding:8px 12px;max-width:230px;display:none;
+  }
+
+  /* ---- radar blip marker ---- */
+  .blip{width:16px;height:16px;position:relative;}
+  .blip::before,.blip::after{
+    content:"";position:absolute;border-radius:50%;
+  }
+  .blip::before{
+    width:8px;height:8px;left:4px;top:4px;background:var(--amber);
+    box-shadow:0 0 8px 2px var(--amber);
+  }
+  .blip::after{
+    width:16px;height:16px;left:0;top:0;border:1px solid var(--amber);
+    opacity:0.6;animation:pulse 2.2s ease-out infinite;
+  }
+  @keyframes pulse{
+    0%{transform:scale(0.4);opacity:0.8;}
+    100%{transform:scale(2.4);opacity:0;}
+  }
+
+  /* ---- popup / case card ---- */
+  .leaflet-popup-content-wrapper{
+    background:var(--paper);color:var(--ink);border-radius:2px;
+    font-family:'Special Elite',monospace;
+  }
+  .leaflet-popup-tip{background:var(--paper);}
+  .case-card{width:230px;}
+  .case-num{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--stamp-red);letter-spacing:1px;font-weight:700;}
+  .case-card img{width:100%;height:130px;object-fit:cover;border:1px solid var(--ink);margin:6px 0;filter:sepia(0.15) contrast(1.05);}
+  .case-title{font-size:15px;margin:2px 0;line-height:1.2;}
+  .case-desc{font-size:12px;line-height:1.4;color:#333;max-height:80px;overflow:auto;}
+  .case-meta{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--teal);margin-top:6px;border-top:1px dashed #999;padding-top:6px;}
+
+  /* ---- modal ---- */
+  .overlay{
+    position:fixed;inset:0;background:rgba(11,14,15,0.85);
+    display:none;align-items:center;justify-content:center;z-index:2000;padding:16px;
+  }
+  .overlay.open{display:flex;}
+  .modal{
+    background:var(--paper);color:var(--ink);width:100%;max-width:420px;
+    border:2px solid var(--ink);padding:22px;position:relative;
+    max-height:90vh;overflow-y:auto;
+  }
+  .modal h2{font-family:'Bebas Neue',sans-serif;letter-spacing:2px;font-size:24px;margin:0 0 4px;color:var(--stamp-red);}
+  .modal p.sub{font-size:11px;color:#555;margin:0 0 16px;font-family:'JetBrains Mono',monospace;}
+  .field{margin-bottom:14px;}
+  .field label{display:block;font-size:10px;letter-spacing:1px;font-family:'JetBrains Mono',monospace;margin-bottom:4px;color:var(--teal);text-transform:uppercase;}
+  .field input[type=text], .field textarea, .field input[type=date]{
+    width:100%;padding:8px;border:1px solid #999;background:#fff;
+    font-family:'Special Elite',monospace;font-size:13px;
+  }
+  .field textarea{resize:vertical;min-height:70px;}
+  .coords-row{display:flex;gap:8px;}
+  .coords-row .field{flex:1;}
+  .file-drop{
+    border:1px dashed #999;padding:12px;text-align:center;font-size:11px;cursor:pointer;background:#fff;
+  }
+  .file-drop.has-file{border-color:var(--teal);color:var(--teal);}
+  .submit-btn{
+    width:100%;padding:12px;background:var(--stamp-red);color:var(--paper);
+    border:none;font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:2px;cursor:pointer;
+  }
+  .submit-btn:disabled{opacity:0.5;cursor:wait;}
+  .price-note{font-size:10px;color:#666;text-align:center;margin-top:8px;line-height:1.4;}
+  .close-x{position:absolute;top:10px;right:14px;cursor:pointer;font-size:18px;color:#555;background:none;border:none;}
+  .form-error{color:var(--stamp-red);font-size:11px;margin-top:6px;display:none;}
+  .toast{
+    position:fixed;top:20px;left:50%;transform:translateX(-50%);z-index:3000;
+    background:var(--paper);color:var(--ink);padding:12px 18px;border:1px solid var(--ink);
+    font-family:'JetBrains Mono',monospace;font-size:12px;max-width:320px;text-align:center;display:none;
+  }
+</style>
+</head>
+<body>
+
+<div id="map"></div>
+
+<div class="hud-top">
+  <div class="brand">
+    <div class="brand-title">ARCHIVO&nbsp;∴&nbsp;GLOBAL</div>
+    <div class="brand-sub">BASE DE DATOS DE AVISTAMIENTOS NO EXPLICADOS</div>
+  </div>
+  <div class="hud-count">CASOS REGISTRADOS: <b id="case-count">0</b></div>
+</div>
+
+<div class="hint-pin" id="hint-pin">Toca el mapa en el lugar exacto del avistamiento para fijar la ubicación del informe.</div>
+
+<button class="report-btn" id="open-report">＋ REPORTAR AVISTAMIENTO</button>
+
+<div class="overlay" id="overlay">
+  <div class="modal">
+    <button class="close-x" id="close-modal">✕</button>
+    <h2>NUEVO INFORME</h2>
+    <p class="sub">Rellena los datos. Tras el pago de verificación, tu caso quedará publicado en el mapa.</p>
+    <form id="report-form">
+      <div class="field">
+        <label>Título breve</label>
+        <input type="text" id="f-title" maxlength="80" required placeholder="Ej: Luz triangular sobre el bosque">
+      </div>
+      <div class="field">
+        <label>Qué viste</label>
+        <textarea id="f-desc" maxlength="1000" required placeholder="Describe lo que ocurrió, forma, movimiento, duración..."></textarea>
+      </div>
+      <div class="field">
+        <label>Fecha del avistamiento</label>
+        <input type="date" id="f-date" required>
+      </div>
+      <div class="coords-row">
+        <div class="field">
+          <label>Latitud</label>
+          <input type="text" id="f-lat" required readonly placeholder="toca el mapa">
+        </div>
+        <div class="field">
+          <label>Longitud</label>
+          <input type="text" id="f-lng" required readonly placeholder="toca el mapa">
+        </div>
+      </div>
+      <div class="field">
+        <label>Fotografía / prueba</label>
+        <input type="file" id="f-file" accept="image/*" style="display:none">
+        <div class="file-drop" id="file-drop">Toca para subir una imagen</div>
+      </div>
+      <button type="submit" class="submit-btn" id="submit-btn">PAGAR 1€ Y PUBLICAR</button>
+      <p class="price-note">El pago de 1€ evita informes falsos o spam y ayuda a mantener el archivo activo. Se procesa de forma segura mediante Stripe. Tu caso se publica automáticamente al confirmarse el pago.</p>
+      <p class="form-error" id="form-error"></p>
+    </form>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+/* =========================================================
+   CONFIGURACIÓN — rellena estos valores con los tuyos
+   ========================================================= */
+const CONFIG = {
+  SUPABASE_URL: "https://TU-PROYECTO.supabase.co",
+  SUPABASE_ANON_KEY: "TU_SUPABASE_ANON_KEY",
+  EDGE_FUNCTION_URL: "https://TU-PROYECTO.supabase.co/functions/v1/create-checkout",
+  CLOUDINARY_CLOUD_NAME: "TU_CLOUD_NAME",
+  CLOUDINARY_UPLOAD_PRESET: "TU_UPLOAD_PRESET_UNSIGNED"
+};
+/* ========================================================= */
+
+const map = L.map('map', {zoomControl:false, worldCopyJump:true}).setView([20,0], 2.3);
+L.control.zoom({position:'bottomright'}).addTo(map);
+L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+  attribution: '&copy; OpenStreetMap &copy; CARTO',
+  subdomains: 'abcd', maxZoom: 19
+}).addTo(map);
+
+const blipIcon = L.divIcon({className:'', html:'<div class="blip"></div>', iconSize:[16,16]});
+
+let pendingLatLng = null;
+let uploadedFile = null;
+
+function toast(msg, ms=4000){
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.style.display='block';
+  clearTimeout(t._timer);
+  t._timer = setTimeout(()=> t.style.display='none', ms);
+}
+
+async function loadSightings(){
+  try{
+    const res = await fetch(`${CONFIG.SUPABASE_URL}/rest/v1/sightings?select=*&status=eq.paid&order=created_at.desc`, {
+      headers:{
+        apikey: CONFIG.SUPABASE_ANON_KEY,
+        Authorization: `Bearer ${CONFIG.SUPABASE_ANON_KEY}`
+      }
+    });
+    const rows = await res.json();
+    document.getElementById('case-count').textContent = rows.length;
+    rows.forEach((row, i) => {
+      const marker = L.marker([row.lat, row.lng], {icon: blipIcon}).addTo(map);
+      const dateStr = row.occurred_at ? new Date(row.occurred_at).toLocaleDateString('es-ES') : '';
+      marker.bindPopup(`
+        <div class="case-card">
+          <div class="case-num">CASO Nº ${String(row.id).slice(0,8).toUpperCase()}</div>
+          <div class="case-title">${escapeHtml(row.title)}</div>
+          ${row.image_url ? `<img src="${row.image_url}" alt="prueba">` : ''}
+          <div class="case-desc">${escapeHtml(row.description)}</div>
+          <div class="case-meta">FECHA: ${dateStr}<br>COORD: ${row.lat.toFixed(3)}, ${row.lng.toFixed(3)}</div>
+        </div>
+      `);
+    });
+  }catch(err){
+    console.error(err);
+    toast('No se pudieron cargar los casos. Revisa la configuración de Supabase.');
+  }
+}
+function escapeHtml(s){
+  return (s||'').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+loadSightings();
+
+/* ---- report flow ---- */
+const overlay = document.getElementById('overlay');
+const hint = document.getElementById('hint-pin');
+
+document.getElementById('open-report').onclick = () => {
+  hint.style.display = 'block';
+  toast('Ahora toca el mapa donde ocurrió el avistamiento.');
+};
+document.getElementById('close-modal').onclick = () => overlay.classList.remove('open');
+
+map.on('click', (e) => {
+  pendingLatLng = e.latlng;
+  document.getElementById('f-lat').value = e.latlng.lat.toFixed(6);
+  document.getElementById('f-lng').value = e.latlng.lng.toFixed(6);
+  hint.style.display = 'none';
+  overlay.classList.add('open');
+});
+
+const fileDrop = document.getElementById('file-drop');
+const fileInput = document.getElementById('f-file');
+fileDrop.onclick = () => fileInput.click();
+fileInput.onchange = () => {
+  if(fileInput.files[0]){
+    uploadedFile = fileInput.files[0];
+    fileDrop.textContent = `✓ ${uploadedFile.name}`;
+    fileDrop.classList.add('has-file');
+  }
+};
+
+async function uploadToCloudinary(file){
+  const fd = new FormData();
+  fd.append('file', file);
+  fd.append('upload_preset', CONFIG.CLOUDINARY_UPLOAD_PRESET);
+  const res = await fetch(`https://api.cloudinary.com/v1_1/${CONFIG.CLOUDINARY_CLOUD_NAME}/image/upload`, {
+    method:'POST', body: fd
+  });
+  if(!res.ok) throw new Error('Fallo al subir la imagen a Cloudinary');
+  const data = await res.json();
+  return data.secure_url;
+}
+
+document.getElementById('report-form').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const errEl = document.getElementById('form-error');
+  const btn = document.getElementById('submit-btn');
+  errEl.style.display='none';
+
+  if(!pendingLatLng){
+    errEl.textContent = 'Falta ubicación en el mapa.'; errEl.style.display='block'; return;
+  }
+
+  btn.disabled = true; btn.textContent = 'PROCESANDO...';
+  try{
+    let imageUrl = null;
+    if(uploadedFile){
+      btn.textContent = 'SUBIENDO IMAGEN...';
+      imageUrl = await uploadToCloudinary(uploadedFile);
+    }
+
+    btn.textContent = 'CREANDO PAGO...';
+    const payload = {
+      title: document.getElementById('f-title').value.trim(),
+      description: document.getElementById('f-desc').value.trim(),
+      occurred_at: document.getElementById('f-date').value,
+      lat: pendingLatLng.lat,
+      lng: pendingLatLng.lng,
+      image_url: imageUrl
+    };
+
+    const res = await fetch(CONFIG.EDGE_FUNCTION_URL, {
+      method:'POST',
+      headers:{'Content-Type':'application/json', apikey: CONFIG.SUPABASE_ANON_KEY},
+      body: JSON.stringify(payload)
+    });
+    if(!res.ok) throw new Error('No se pudo iniciar el pago');
+    const {url} = await res.json();
+    window.location.href = url; // redirige a Stripe Checkout
+  }catch(err){
+    console.error(err);
+    errEl.textContent = err.message || 'Ha ocurrido un error, inténtalo de nuevo.';
+    errEl.style.display = 'block';
+    btn.disabled = false; btn.textContent = 'PAGAR 1€ Y PUBLICAR';
+  }
+});
+
+/* ---- mensajes de retorno de Stripe ---- */
+const params = new URLSearchParams(window.location.search);
+if(params.get('success')){
+  toast('Pago recibido. Tu informe se está verificando y aparecerá en el mapa en unos segundos.', 7000);
+}
+if(params.get('canceled')){
+  toast('Pago cancelado. Tu informe no se ha publicado.', 5000);
+}
+</script>
+</body>
+</html>
